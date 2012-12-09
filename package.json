@@ -1,0 +1,34 @@
+{
+  "name": "async2",
+  "version": "0.1.0",
+  "description": "Better async utilities for node and the browser",
+  "main": "js/async2.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "pretest": "coffee -o js coffee/async2.coffee",
+    "test": "mocha --timeout 10000 --compilers coffee:coffee-script test/test.coffee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikesmullin/async2.git"
+  },
+  "keywords": [
+    "async",
+    "asynchronous",
+    "flow",
+    "control",
+    "library",
+    "node.js",
+    "node",
+    "javascript",
+    "better",
+    "minimalist",
+    "improved",
+    "alternative"
+  ],
+  "author": "Mike Smullin <mike@smullindesign.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
