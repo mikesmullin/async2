@@ -3,6 +3,7 @@
   var async;
 
   module.exports = async = (function() {
+    var key, key2, _ref;
 
     async.whilst = function(test, iterator, callback) {
       var _this;
@@ -14,7 +15,8 @@
       return new async();
     };
 
-    function async() {
+    function async(beginning_result) {
+      this.beginning_result = beginning_result != null ? beginning_result : void 0;
       this.a = [];
       this.beginning_length = 0;
       this.processed = 0;
@@ -38,10 +40,16 @@
         _this = this;
       current = this.a.shift();
       next = this.a[0];
+      if (this.beforeEach_callback != null) {
+        this.beforeEach_callback(result, err);
+      }
       return function(result, err) {
         _this.processed++;
         if (err) {
           return _this._call(result, err);
+        }
+        if (_this.afterEach_callback != null) {
+          _this.afterEach_callback(result, err);
         }
         if (!parallel || _this.processed === _this.beginning_length) {
           while (_this._call(result, err) && parallel) {}
@@ -53,9 +61,6 @@
       var _this = this;
       this.beginning_length++;
       this.a.push(function(result, err) {
-        if (_this.inbetween_cb != null) {
-          _this.inbetween_cb(result, err);
-        }
         cb.call(_this._pop(parallel, result, err), result, err);
         if (parallel && 1 !== _this.a.length) {
           _this._call(result, err);
@@ -73,37 +78,50 @@
       return this._push(cb, true);
     };
 
-    async.prototype.inbetween = function(inbetween_cb) {
-      this.inbetween_cb = inbetween_cb;
-      return this;
-    };
-
-    async.prototype.rescue = function(rescue_cb) {
-      this.rescue_cb = rescue_cb;
-      return this;
-    };
-
-    async.prototype.success = function(success_cb) {
-      this.success_cb = success_cb;
-      return this;
+    async.prototype["do"] = function(cb) {
+      return this._push(cb, !!cb.length);
     };
 
     async.prototype.end = function(cb) {
       var _this = this;
       this.a.push(function(result, err) {
-        if (_this.inbetween_cb != null) {
-          _this.inbetween_cb(result, err);
+        if (_this.afterEach_callback != null) {
+          _this.afterEach_callback(result, err);
         }
-        if (err && (_this.rescue_cb != null)) {
-          _this.rescue_cb(err);
-        } else if (_this.success_cb != null) {
-          _this.success_cb(result);
+        if (err && (_this.error_callback != null)) {
+          _this.error_callback(err);
+        } else if (_this.success_callback != null) {
+          _this.success_callback(result);
         }
         return cb.call((function() {}), result, err);
       });
-      this._call(void 0, null);
+      this._call(this.beginning_result, null);
       return this;
     };
+
+    for (key in _ref = {
+      'beforeAll': ['before'],
+      'beforeEach': null,
+      'afterEach': ['between', 'inbetween'],
+      'error': ['catch', 'rescue'],
+      'do': ['then'],
+      'success': null,
+      'end': ['finally', 'ensure', 'afterAll', 'after', 'complete', 'done']
+    }) {
+      if (typeof async.prototype[key] === 'undefined') {
+        (function(key) {
+          return async.prototype[key] = function(cb) {
+            this[key + '_callback'] = cb;
+            return this;
+          };
+        })(key);
+      }
+      if (_ref[key] != null) {
+        for (key2 in _ref[key]) {
+          async.prototype[_ref[key][key2]] = async.prototype[key];
+        }
+      }
+    }
 
     return async;
 

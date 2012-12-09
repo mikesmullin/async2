@@ -6,7 +6,7 @@ module.exports = class async
   @begin: ->
     new async()
 
-  constructor: ->
+  constructor: (@beginning_result = undefined) ->
     @a = []
     @beginning_length = 0
     @processed = 0
@@ -23,9 +23,11 @@ module.exports = class async
   _pop: (parallel, result, err) ->
     current = @a.shift()
     next = @a[0]
+    @beforeEach_callback result, err if @beforeEach_callback?
     (result, err) =>
       @processed++
       return @_call result, err if err
+      @afterEach_callback result, err if @afterEach_callback?
       if not parallel or @processed is @beginning_length
         while(@_call(result, err) and parallel)
           ;
@@ -34,7 +36,6 @@ module.exports = class async
   _push: (cb, parallel) ->
     @beginning_length++
     @a.push (result, err) =>
-      @inbetween_cb result, err if @inbetween_cb?
       cb.call @_pop(parallel, result, err), result, err
       if parallel and 1 isnt @a.length
         @_call result, err
@@ -47,22 +48,33 @@ module.exports = class async
   parallel: (cb) ->
     @_push cb, true
 
-  inbetween: (@inbetween_cb) ->
-    return @
-
-  rescue: (@rescue_cb) ->
-    return @
-
-  success: (@success_cb) ->
-    return @
+  do: (cb) ->
+    @_push cb, !!cb.length
 
   end: (cb) ->
     @a.push (result, err) =>
-      @inbetween_cb result, err if @inbetween_cb?
-      if err and @rescue_cb?
-        @rescue_cb(err)
-      else if @success_cb?
-        @success_cb(result)
+      @afterEach_callback result, err if @afterEach_callback?
+      if err and @error_callback?
+        @error_callback err
+      else if @success_callback?
+        @success_callback result
       cb.call (->), result, err
-    @_call undefined, null
+    @_call @beginning_result, null
     return @
+
+  for key of _ref = {
+    'beforeAll': ['before'],
+    'beforeEach': null
+    'afterEach': ['between', 'inbetween']
+    'error': ['catch', 'rescue']
+    'do': ['then']
+    'success': null
+    'end': ['finally', 'ensure', 'afterAll', 'after', 'complete', 'done']
+  }
+    if typeof async.prototype[key] is 'undefined'
+      ((key) -> async.prototype[key] = (cb) ->
+        @[key + '_callback'] = cb
+        return @)(key)
+    if _ref[key]?
+      for key2 of _ref[key]
+        async.prototype[_ref[key][key2]] = async.prototype[key]
