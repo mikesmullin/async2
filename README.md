@@ -1,6 +1,6 @@
 # Async2.js
 
-Better asynchronous javascript flow control in 130 lines.
+Better asynchronous javascript flow control in 132 lines.
 Inspired by [async](https://github.com/caolan/async) library.
 
 ### Flow Control
@@ -8,8 +8,8 @@ Inspired by [async](https://github.com/caolan/async) library.
 * [begin](#begin) : returns new chainable instance
 * [beforeAll / before](#beforeEach) : non-blocking function called once before first task
 * [beforeEach](#beforeEach) : non-blocking function called once before each task
-* [serial](#serial) : blocking function called in order
-* [parallel](#parallel) : non-blocking function called in order
+* [serial / series / blocking](#serial) : blocking function called in order
+* [parallel / nonblocking](#parallel) : non-blocking function called in order
 * [do / then](#serial) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#afterEach) : non-blocking function called once after each task
 * [error / catch / rescue](#rescue) : blocking function called when error occurs
@@ -108,12 +108,21 @@ a = async.begin()
     console.log "The wait is over.")
 ```
 
+### legacy backward-compatibility
+```coffeescript
+async.parallel [
+  -> blah
+  -> blah
+], ->
+  # done
+```
+
 For the latest examples, review [test/test.coffee]()
 
 TODO
 ----
 
-* potentially madness: each series becomes its own cpu thread, each parallel becomes its own gpu thread.
+* potential node.js madness: each series becomes its own cpu thread, each parallel becomes its own gpu thread.
 
 > "GPUs have evolved to the point where many real-world applications are easily implemented on them and run significantly faster than on multi-core systems. Future computing architectures will be hybrid systems with parallel-core GPUs working in tandem with multi-core CPUs.'
 -- [Professor Jack Dongarra](http://www.nvidia.com/object/what-is-gpu-computing.html),

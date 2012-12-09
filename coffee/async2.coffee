@@ -43,6 +43,8 @@ module.exports = class async
     return @
 
   serial: (cb) ->
+    # TODO: detect arrays passed instead of functions, add them as if they were chained for backward compatibility with async.js
+    # TODO: could even accept end as 2nd argument here
     @_push cb, false
 
   parallel: (cb) ->
@@ -65,6 +67,8 @@ module.exports = class async
   for key of _ref = {
     'beforeAll': ['before'],
     'beforeEach': null
+    'serial': ['series', 'blocking']
+    'parallel': ['nonblocking']
     'afterEach': ['between', 'inbetween']
     'error': ['catch', 'rescue']
     'do': ['then']

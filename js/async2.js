@@ -102,6 +102,8 @@
     for (key in _ref = {
       'beforeAll': ['before'],
       'beforeEach': null,
+      'serial': ['series', 'blocking'],
+      'parallel': ['nonblocking'],
       'afterEach': ['between', 'inbetween'],
       'error': ['catch', 'rescue'],
       'do': ['then'],
