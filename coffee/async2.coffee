@@ -1,4 +1,8 @@
 module.exports = class async
+  @whilst: (test, iterator, callback) ->
+    _this = this
+    `test() ? iterator(function(err){return err ? callback(err) : _this.whilst(test,iterator,callback)}) : callback()`
+
   @begin: ->
     new async()
 

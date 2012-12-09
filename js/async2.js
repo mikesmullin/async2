@@ -4,6 +4,12 @@
 
   module.exports = async = (function() {
 
+    async.whilst = function(test, iterator, callback) {
+      var _this;
+      _this = this;
+      return test() ? iterator(function(err){return err ? callback(err) : _this.whilst(test,iterator,callback)}) : callback();
+    };
+
     async.begin = function() {
       return new async();
     };

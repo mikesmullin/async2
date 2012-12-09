@@ -35,3 +35,10 @@ describe 'Async2', ->
       .end (result, err) ->
         Debugger.log ['8 end', @, result, err]
         done()
+
+  it 'even whilst()', (done) ->
+    console.log 'starting whilst example... should see 0 1 2 3 4 done'
+    a = 0
+    async.whilst (-> a < 5 ),
+      ((done)-> delay 500, -> console.log "a is #{a}"; a++; done() ),
+      (-> console.log 'done'; done())
