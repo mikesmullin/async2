@@ -1,4 +1,6 @@
 async = require '../coffee/async2'
+chai = require 'chai'
+assert = chai.assert
 
 class Debugger
   @started: new Date()

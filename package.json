@@ -8,7 +8,7 @@
   },
   "scripts": {
     "pretest": "coffee -o js coffee/async2.coffee",
-    "test": "mocha --timeout 10000 --compilers coffee:coffee-script test/test.coffee"
+    "test": "mocha --reporter spec --bail --ui bdd --colors --timeout 10000 --compilers coffee:coffee-script test/test.coffee"
   },
   "repository": {
     "type": "git",
@@ -30,5 +30,8 @@
   ],
   "author": "Mike Smullin <mike@smullindesign.com>",
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "chai": "~1.4.0"
+  }
 }
