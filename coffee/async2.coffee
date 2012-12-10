@@ -37,25 +37,32 @@ not ((name, context, definition) ->
           ;
       return
 
-  _push: (cb, parallel) ->
-    @beginning_length++
-    @a.push (result, err) =>
-      cb.call @_pop(parallel, result, err), result, err
-      if parallel and 1 isnt @a.length
-        @_call result, err
-      parallel # false = blocking, true = non-blocking
+  _push: (args, parallel) ->
+    if Object.prototype.toString.call(args[0]) is '[object Function]'
+      args[0] = [args[0]]
+      dont_end = true
+    for own key of args[0]
+      ((cb, parallel) =>
+        @beginning_length++
+        @a.push (result, err) =>
+          cb.call @_pop(parallel, result, err), result, err
+          if parallel and 1 isnt @a.length
+            @_call result, err
+          parallel # false = blocking, true = non-blocking
+      )(args[0][key], if parallel is null then not args[0][key].length else parallel)
+    @end(if typeof args[1] is 'function' then args[1] else ->) unless dont_end?
     return @
 
-  serial: (cb) ->
+  serial: ->
     # TODO: detect arrays passed instead of functions, add them as if they were chained for backward compatibility with async.js
     # TODO: could even accept end as 2nd argument here
-    @_push cb, false
+    @_push arguments, false
 
-  parallel: (cb) ->
-    @_push cb, true
+  parallel: ->
+    @_push arguments, true
 
-  then: (cb) ->
-    @_push cb, !cb.length
+  then: ->
+    @_push arguments, null
 
   end: (cb) ->
     @a.push (result, err) =>

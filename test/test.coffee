@@ -84,6 +84,15 @@ describe 'Async2', ->
         assert.equal result, 'async.js is silly. pass it on. ok maybe its not too silly.'
         done()
 
+  it 'accepts enumerable objects as task input, executing immediately', (done) ->
+    # legacy async.js backward compatibility
+    async.series [
+     -> delay 100, @
+     -> delay 50, @
+    ], ->
+      assert.closeTo 100+50, since(start), 25
+      done()
+
   #it 'can do everything', (done) ->
 
   #  console.log 'starting serial/parallel example... should be a A b c d e f D F g h G success end'
