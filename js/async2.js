@@ -12,50 +12,36 @@
   })('async', this, async = (function() {
     var key, key2, _fn, _ref;
 
-    async.whilst = function(test, iterator, callback) {
-      var _this;
-      _this = this;
-      return test() ? iterator(function(err){return err ? callback(err) : _this.whilst(test,iterator,callback)}) : callback();
-    };
-
     function async(beginning_result) {
-      this.beginning_result = beginning_result != null ? beginning_result : void 0;
-      this.a = [];
-      this.beginning_length = 0;
-      this.processed = 0;
+      if (typeof this.serial === 'undefined') {
+        return new async(arguments[0]);
+      } else {
+        this.a = [];
+        this.beginning_result = beginning_result != null ? beginning_result : {};
+        this.beginning_length = 0;
+        this.processed = 0;
+      }
     }
 
-    async.prototype._call = function(result, err) {
-      var a;
-      if (err) {
-        a = this.a[this.a.length - 1];
-        this.a = [];
-      } else if (this.a.length) {
-        a = this.a[0];
-      }
-      if (typeof a !== 'undefined') {
-        return a.call((function() {}), result, err);
+    async.prototype._apply = function(args) {
+      if (this.a.length) {
+        return (args[0] ? this.a.splice(0, this.a.length).shift() : this.a[this.a.length - 1]).apply((function() {}), args);
       }
     };
 
-    async.prototype._pop = function(parallel, result, err) {
-      var current, next,
-        _this = this;
-      current = this.a.shift();
-      next = this.a[0];
-      if (this.beforeEach_callback != null) {
-        this.beforeEach_callback(result, err);
-      }
-      return function(result, err) {
+    async.prototype._pop = function(parallel) {
+      var _this = this;
+      this.a.pop();
+      return function() {
         _this.processed++;
-        if (err) {
-          return _this._call(result, err);
+        if (arguments[0]) {
+          return _this._apply(arguments);
         }
         if (_this.afterEach_callback != null) {
-          _this.afterEach_callback(result, err);
+          _this.afterEach_callback.apply(_this, arguments);
         }
         if (!parallel || _this.processed === _this.beginning_length) {
-          while (_this._call(result, err) && parallel) {}
+          while (_this._apply(arguments) && parallel) {}
         }
       };
     };
@@ -70,10 +56,17 @@
       _ref = args[0];
       _fn = function(cb, parallel) {
         _this.beginning_length++;
-        return _this.a.push(function(result, err) {
-          cb.call(_this._pop(parallel, result, err), result, err);
+        return _this.a.push(function() {
+          var next;
+          if (_this.beforeEach_callback != null) {
+            _this.beforeEach_callback.apply(_this, arguments);
+          }
+          args = Array.prototype.slice.apply(arguments).slice(1);
+          next = _this._pop(parallel);
+          args.push(next);
+          cb.apply(next, args);
           if (parallel && 1 !== _this.a.length) {
-            _this._call(result, err);
+            _this._apply(arguments);
           }
           return parallel;
         });
@@ -102,18 +95,19 @@
 
     async.prototype.end = function(cb) {
       var _this = this;
-      this.a.push(function(result, err) {
+      this.a.push(function() {
         if (_this.afterEach_callback != null) {
-          _this.afterEach_callback(result, err);
+          _this.afterEach_callback.apply(_this, arguments);
         }
-        if (err && (_this.error_callback != null)) {
-          _this.error_callback(err);
+        if (arguments[0] && (_this.error_callback != null)) {
+          _this.error_callback.apply(_this, arguments);
         } else if (_this.success_callback != null) {
-          _this.success_callback(result);
+          _this.success_callback.apply(_this, arguments);
         }
-        return cb.call((function() {}), result, err);
+        return cb.apply((function() {}), arguments);
       });
-      this._call(this.beginning_result, null);
+      this.a.reverse();
+      this._apply([null, this.beginning_result]);
       return this;
     };
 
@@ -149,6 +143,21 @@
         }
       }
     }
+
+    async.whilst = function(test, iterator, callback) {
+      var _this = this;
+      if (test()) {
+        iterator(function(err) {
+          if (err) {
+            return callback(err);
+          } else {
+            return _this.whilst(test, iterator, callback);
+          }
+        });
+      } else {
+        callback();
+      }
+    };
 
     return async;
 

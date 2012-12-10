@@ -6,34 +6,27 @@ not ((name, context, definition) ->
   else
     context[name] = definition
 )('async', this, class async
-  @whilst: (test, iterator, callback) ->
-    _this = this
-    `test() ? iterator(function(err){return err ? callback(err) : _this.whilst(test,iterator,callback)}) : callback()`
-
-  constructor: (@beginning_result = undefined) ->
-    @a = []
-    @beginning_length = 0
-    @processed = 0
-
-  _call: (result, err) ->
-    if err
-      a = @a[@a.length-1] # skip to end callback
+  constructor: (beginning_result) ->
+    if typeof @serial is 'undefined'
+      return new async arguments[0]
+    else
       @a = []
-    else if @a.length
-      a = @a[@a.length-1]
-    if typeof a isnt 'undefined'
-      a.call (->), result, err
+      @beginning_result = if beginning_result? then beginning_result else {}
+      @beginning_length = 0
+      @processed = 0
 
-  _pop: (parallel, result, err) ->
-    current = @a.pop()
-    next = @a[@a.length-1]
-    @beforeEach_callback result, err if @beforeEach_callback?
-    (result, err) =>
+  _apply: (args) ->
+    if @a.length
+      (if args[0] then @a.splice(0, @a.length).shift() else @a[@a.length-1]).apply (->), args
+
+  _pop: (parallel) ->
+    @a.pop()
+    =>
       @processed++
-      return @_call result, err if err
-      @afterEach_callback result, err if @afterEach_callback?
+      return @_apply arguments if arguments[0] # err
+      @afterEach_callback.apply this, arguments if @afterEach_callback?
       if not parallel or @processed is @beginning_length
-        while(@_call(result, err) and parallel)
+        while(@_apply(arguments) and parallel)
           ;
       return
 
@@ -44,18 +37,20 @@ not ((name, context, definition) ->
     for own key of args[0]
       ((cb, parallel) =>
         @beginning_length++
-        @a.push (result, err) =>
-          cb.call @_pop(parallel, result, err), result, err
+        @a.push =>
+          @beforeEach_callback.apply this, arguments if @beforeEach_callback?
+          args = Array.prototype.slice.apply(arguments).slice 1
+          next = @_pop parallel
+          args.push next
+          cb.apply next, args
           if parallel and 1 isnt @a.length
-            @_call result, err
+            @_apply arguments
           parallel # false = blocking, true = non-blocking
       )(args[0][key], if parallel is null then not args[0][key].length else parallel)
     @end(if typeof args[1] is 'function' then args[1] else ->) unless dont_end?
     return @
 
   serial: ->
-    # TODO: detect arrays passed instead of functions, add them as if they were chained for backward compatibility with async.js
-    # TODO: could even accept end as 2nd argument here
     @_push arguments, false
 
   parallel: ->
@@ -65,15 +60,15 @@ not ((name, context, definition) ->
     @_push arguments, null
 
   end: (cb) ->
-    @a.push (result, err) =>
-      @afterEach_callback result, err if @afterEach_callback?
-      if err and @error_callback?
-        @error_callback err
+    @a.push =>
+      @afterEach_callback.apply this, arguments if @afterEach_callback?
+      if arguments[0] and @error_callback?
+        @error_callback.apply this, arguments
       else if @success_callback?
-        @success_callback result
-      cb.call (->), result, err
+        @success_callback.apply this, arguments
+      cb.apply (->), arguments
     @a.reverse() # 6-10x faster to push/pop than shift
-    @_call @beginning_result, null
+    @_apply [null, @beginning_result]
     return @
 
   for key of _ref = {
@@ -103,4 +98,15 @@ not ((name, context, definition) ->
       for key2 of _ref[key]
         async.prototype[_ref[key][key2]] = async.prototype[key]
         async[_ref[key][key2]] = async[key]
+
+  @whilst: (test, iterator, callback) ->
+    if test()
+      iterator (err) =>
+        if err
+          callback err
+        else
+          @whilst test, iterator, callback
+    else
+      callback()
+    return
 )

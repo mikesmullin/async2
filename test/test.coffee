@@ -65,11 +65,11 @@ describe 'async2', ->
   it 'can accomplish async.js::waterfall() with serial()', (done) ->
     # see also: https://github.com/caolan/async#waterfall
     async
-      .serial(-> delay 50, @ 'async.js is silly. pass it on.' )
-      .serial((result)-> delay 50, @ result )
-      .serial((result)-> delay 50, @ result + ' ok maybe its not too silly.' )
-      .end (result) ->
-        assert.equal result, 'async.js is silly. pass it on. ok maybe its not too silly.'
+      .serial(-> @ null, 'async.js is silly. pass it on.' )
+      .serial((result) -> @ null, result + ' hehe.')
+      .serial((result) -> @ null, result + ' ok maybe its not too silly.' )
+      .end (err, result) ->
+        assert.equal result, 'async.js is silly. pass it on. hehe. ok maybe its not too silly.'
         done()
 
   it 'accepts enumerable objects as task input, executing immediately', (done) ->
@@ -80,6 +80,19 @@ describe 'async2', ->
     ], ->
       assert.closeTo 100+50, since(start), 25
       done()
+
+  it 'follows node (result.., cb) and (err, result..., cb) conventions', (done) ->
+    fs =
+      readFile: (path, done) ->
+        delay 20, -> done null, "tons o' data from #{path}."
+    tweet = fbook = gplus = (data, done) -> done null, data
+    results = {}
+    async('pretend/path/to/file')
+      .serial(fs.readFile)
+      .parallel [ tweet, fbook, gplus ],
+        (err, data) ->
+          assert.equal "tons o' data from pretend/path/to/file.", data
+          done()
 
   #it 'can do everything', (done) ->
 
