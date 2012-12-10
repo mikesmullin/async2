@@ -69,6 +69,17 @@ describe 'Async2', ->
         assert.closeTo Math.max(10,50)+100+250, since(start), 25
         done()
 
+  it 'can accomplish async.js::waterfall() with serial()', (done) ->
+    # see also: https://github.com/caolan/async#waterfall
+    start = new Date
+    async
+      .serial(-> delay 50, @ 'async.js is silly. pass it on.' )
+      .serial((result)-> delay 50, @ result )
+      .serial((result)-> delay 50, @ result + ' ok maybe its not too silly.' )
+      .end (result) ->
+        assert.equal result, 'async.js is silly. pass it on. ok maybe its not too silly.'
+        done()
+
   #it 'can do everything', (done) ->
 
   #  console.log 'starting serial/parallel example... should be a A b c d e f D F g h G success end'

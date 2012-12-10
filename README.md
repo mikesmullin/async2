@@ -8,7 +8,7 @@ Inspired by [async](https://github.com/caolan/async) library.
 * [begin / try / new](#begin) : chainable instantiation; not required but sometimes useful
 * [beforeAll / before](#beforeEach) : non-blocking function called once before first task
 * [beforeEach](#beforeEach) : non-blocking function called once before each task
-* [serial / series / blocking](#serial) : blocking function called in order
+* [serial / series / blocking / waterfall](#serial) : blocking function called in order; results optionally waterfalled.
 * [parallel / nonblocking](#parallel) : non-blocking function called in order
 * [do / then / auto](#serial) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#afterEach) : non-blocking function called once after each task

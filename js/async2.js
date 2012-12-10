@@ -117,7 +117,7 @@
       'begin': ['new', 'try'],
       'beforeAll': ['before'],
       'beforeEach': null,
-      'serial': ['series', 'blocking'],
+      'serial': ['series', 'blocking', 'waterfall'],
       'parallel': ['nonblocking'],
       'then': ['do'],
       'afterEach': ['between', 'inbetween'],

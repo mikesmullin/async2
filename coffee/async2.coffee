@@ -72,7 +72,7 @@ not ((name, context, definition) ->
     'begin': ['new', 'try'],
     'beforeAll': ['before'],
     'beforeEach': null
-    'serial': ['series', 'blocking']
+    'serial': ['series', 'blocking', 'waterfall']
     'parallel': ['nonblocking']
     'then': ['do', 'auto']
     'afterEach': ['between', 'inbetween']
