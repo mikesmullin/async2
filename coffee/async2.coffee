@@ -74,7 +74,7 @@ not ((name, context, definition) ->
     'beforeEach': null
     'serial': ['series', 'blocking']
     'parallel': ['nonblocking']
-    'then': ['do']
+    'then': ['do', 'auto']
     'afterEach': ['between', 'inbetween']
     'error': ['catch', 'rescue']
     'success': ['else']

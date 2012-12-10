@@ -57,6 +57,17 @@ describe 'Async2', ->
         assert.closeTo 200+Math.max(100,50), since(start), 25
         done()
 
+  it 'can accomplish async.js::auto() with chain ordering', (done) ->
+    # see also: https://github.com/caolan/async#auto
+    start = new Date
+    async
+      .parallel(->( get_data = (cb) -> delay 10, cb )(@))
+      .serial(->( make_folder = (cb) -> delay 50, cb )(@)) # same time as get_data
+      .serial(->( write_file = (cb) -> delay 100, cb )(@)) # after get_data and make_folder
+      .serial(->( email_link = (cb) -> delay 250, cb )(@)) # after write_file
+      .end ->
+        assert.closeTo Math.max(10,50)+100+250, since(start), 25
+        done()
 
   #it 'can do everything', (done) ->
 

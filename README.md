@@ -10,7 +10,7 @@ Inspired by [async](https://github.com/caolan/async) library.
 * [beforeEach](#beforeEach) : non-blocking function called once before each task
 * [serial / series / blocking](#serial) : blocking function called in order
 * [parallel / nonblocking](#parallel) : non-blocking function called in order
-* [do / then](#serial) : optionally blocking function called in order; determined by length of arguments callback expects
+* [do / then / auto](#serial) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#afterEach) : non-blocking function called once after each task
 * [error / catch / rescue](#rescue) : blocking function called when error occurs
 * [success / else](#success) : non-blocking function called after all tasks have completed, but only if no errors occur
@@ -21,7 +21,7 @@ Inspired by [async](https://github.com/caolan/async) library.
 
 ### First, reflect upon our haiku mantra:
 
-> "simply, single-chain
+> "thoughtful single-chain
 
 > order of operations
 
