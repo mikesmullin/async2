@@ -94,8 +94,36 @@ describe 'async2', ->
           assert.equal "tons o' data from pretend/path/to/file.", data
           done()
 
-  #it 'can do everything', (done) ->
+  it 'can process callbacks before, beforeEach, afterEach', (done) ->
+    results = []
+    check = (what, done) ->
+      setTimeout (->
+        results.push what
+        done null, what
+      ), 50
+    async
+      .before((result) -> 'awake' )
+      .beforeEach((result) -> 'ready to switch focus' )
+      .do((result) -> check 'mobile', @ )
+      .then(-> check 'email', @ )
+      .then(-> check 'Fbook', @ )
+      .then(-> check 'GPlus', @ )
+      .afterEach((result) -> 'cleaned up after task' )
+      .end (err) ->
+        assert.equal 'mobile email Fbook GPlus', results.join ' '
+        assert.closeTo 50+Math.max(50,50,50), since(start), 25
+        done()
 
+  it 'can do whilst()', (done) ->
+    a = 0
+    out = []
+    async.whilst (-> a < 5 ),
+      ((done) -> delay 50, -> out.push a++; done() ), ->
+        assert.equal '0 1 2 3 4', out.join ' '
+        assert.closeTo 5*50, since(start), 25
+        done()
+
+  #it 'can do everything', (done) ->
   #  console.log 'starting serial/parallel example... should be a A b c d e f D F g h G success end'
   #  a = async.begin()
   #  a.serial((result, err) -> Debugger.log ['0 a', @, result, err]; delay 1000, => Debugger.log ['0 A', @, result, err]; @ 1, err)
@@ -112,10 +140,3 @@ describe 'async2', ->
   #    .end (result, err) ->
   #      Debugger.log ['8 end', @, result, err]
   #      done()
-
-  #it 'even whilst()', (done) ->
-  #  console.log 'starting whilst example... should see 0 1 2 3 4 done'
-  #  a = 0
-  #  async.whilst (-> a < 5 ),
-  #    ((done)-> delay 500, -> console.log "a is #{a}"; a++; done() ),
-  #    (-> console.log 'done'; done())

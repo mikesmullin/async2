@@ -19,12 +19,11 @@ not ((name, context, definition) ->
     if @a.length
       (if args[0] then @a.splice(0, @a.length).shift() else @a[@a.length-1]).apply (->), args
 
-  _pop: (parallel) ->
-    @a.pop()
+  _next: (parallel) ->
     =>
       @processed++
       return @_apply arguments if arguments[0] # err
-      @afterEach_callback.apply this, arguments if @afterEach_callback?
+      @_callback 'afterEach', arguments
       if not parallel or @processed is @beginning_length
         while(@_apply(arguments) and parallel)
           ;
@@ -38,9 +37,10 @@ not ((name, context, definition) ->
       ((cb, parallel) =>
         @beginning_length++
         @a.push =>
-          @beforeEach_callback.apply this, arguments if @beforeEach_callback?
+          @_callback 'beforeEach', arguments
           args = Array.prototype.slice.apply(arguments).slice 1
-          next = @_pop parallel
+          @a.pop()
+          next = @_next parallel
           args.push next
           cb.apply next, args
           if parallel and 1 isnt @a.length
@@ -49,6 +49,10 @@ not ((name, context, definition) ->
       )(args[0][key], if parallel is null then not args[0][key].length else parallel)
     @end(if typeof args[1] is 'function' then args[1] else ->) unless dont_end?
     return @
+
+  _callback: (name, args) ->
+    if typeof @[name += '_callback'] is 'function'
+      @[name].apply @_next(!@[name].length), args
 
   serial: ->
     @_push arguments, false
@@ -61,13 +65,13 @@ not ((name, context, definition) ->
 
   end: (cb) ->
     @a.push =>
-      @afterEach_callback.apply this, arguments if @afterEach_callback?
-      if arguments[0] and @error_callback?
-        @error_callback.apply this, arguments
-      else if @success_callback?
-        @success_callback.apply this, arguments
+      if arguments[0]
+        @_callback 'error', arguments
+      else
+        @_callback 'success', arguments
       cb.apply (->), arguments
     @a.reverse() # 6-10x faster to push/pop than shift
+    @_callback 'beforeAll', arguments
     @_apply [null, @beginning_result]
     return @
 

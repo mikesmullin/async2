@@ -29,17 +29,14 @@
       }
     };
 
-    async.prototype._pop = function(parallel) {
+    async.prototype._next = function(parallel) {
       var _this = this;
-      this.a.pop();
       return function() {
         _this.processed++;
         if (arguments[0]) {
           return _this._apply(arguments);
         }
-        if (_this.afterEach_callback != null) {
-          _this.afterEach_callback.apply(_this, arguments);
-        }
+        _this._callback('afterEach', arguments);
         if (!parallel || _this.processed === _this.beginning_length) {
           while (_this._apply(arguments) && parallel) {}
         }
@@ -58,11 +55,10 @@
         _this.beginning_length++;
         return _this.a.push(function() {
           var next;
-          if (_this.beforeEach_callback != null) {
-            _this.beforeEach_callback.apply(_this, arguments);
-          }
+          _this._callback('beforeEach', arguments);
           args = Array.prototype.slice.apply(arguments).slice(1);
-          next = _this._pop(parallel);
+          _this.a.pop();
+          next = _this._next(parallel);
           args.push(next);
           cb.apply(next, args);
           if (parallel && 1 !== _this.a.length) {
@@ -81,6 +77,12 @@
       return this;
     };
 
+    async.prototype._callback = function(name, args) {
+      if (typeof this[name += '_callback'] === 'function') {
+        return this[name].apply(this._next(!this[name].length), args);
+      }
+    };
+
     async.prototype.serial = function() {
       return this._push(arguments, false);
     };
@@ -96,17 +98,15 @@
     async.prototype.end = function(cb) {
       var _this = this;
       this.a.push(function() {
-        if (_this.afterEach_callback != null) {
-          _this.afterEach_callback.apply(_this, arguments);
-        }
-        if (arguments[0] && (_this.error_callback != null)) {
-          _this.error_callback.apply(_this, arguments);
-        } else if (_this.success_callback != null) {
-          _this.success_callback.apply(_this, arguments);
+        if (arguments[0]) {
+          _this._callback('error', arguments);
+        } else {
+          _this._callback('success', arguments);
         }
         return cb.apply((function() {}), arguments);
       });
       this.a.reverse();
+      this._callback('beforeAll', arguments);
       this._apply([null, this.beginning_result]);
       return this;
     };

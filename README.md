@@ -36,31 +36,7 @@ libraries.
 
 > escape callback hell!"
 
-### a simply beautiful example
 <a name="begin" />
-```coffeescript
-results = [],
-check = (what, done) ->
-  console.log "checking #{what}..."
-  setTimeout (->
-    console.log "done with #{what}"
-    results.push what
-    done what
-  ), 1000)
-
-async
-  .before((done) -> check 'awake', done )
-  .beforeEach((done) -> check 'ready to switch focus', done )
-  .do((done) -> check 'mobile', done )
-  .then(-> check 'email', @ )
-  .then(-> check 'Fbook', @ )
-  .then(-> check 'GPlus', @ )
-  .afterEach(-> check 'cleaned up after task' )
-  .end ->
-    console.log "finished #{results.join(', ')}. ready to work!"
-    done()
-```
-
 ### an overcomplicated display of flexibility
 ```coffeescript
 a = async.new()
@@ -94,15 +70,6 @@ async.try()
   .catch((e) -> console.log "something fishy: #{err}")
   .finally ->
     console.log 'ready to eat!'
-
-(next) # serial
-(next, err) #
-(err, result) #
-(result, err) #
-(err)
-(result)
-(next, err, result)
-
 ```
 
 ### everything but the kitchen sink example
@@ -125,15 +92,6 @@ a = async
   .success((result) -> console.log "The results are in: #{result}")
   .end (result, err) ->
     console.log "The wait is over.")
-```
-
-### legacy backward-compatibility
-```coffeescript
-async.parallel [
-  -> blah
-  -> blah
-], ->
-  # done
 ```
 
 For the latest examples, review [./test/test.coffee](async2/blob/master/test/test.coffee)
