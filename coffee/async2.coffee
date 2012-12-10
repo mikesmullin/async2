@@ -3,9 +3,6 @@ module.exports = class async
     _this = this
     `test() ? iterator(function(err){return err ? callback(err) : _this.whilst(test,iterator,callback)}) : callback()`
 
-  @begin: ->
-    new async()
-
   constructor: (@beginning_result = undefined) ->
     @a = []
     @beginning_length = 0
@@ -75,10 +72,17 @@ module.exports = class async
     'success': null
     'end': ['finally', 'ensure', 'afterAll', 'after', 'complete', 'done']
   }
-    if typeof async.prototype[key] is 'undefined'
-      ((key) -> async.prototype[key] = (cb) ->
-        @[key + '_callback'] = cb
-        return @)(key)
-    if _ref[key]?
+    ((key) ->
+      if typeof async.prototype[key] is 'undefined' # optional callbacks
+        async.prototype[key] = (cb) ->
+          @[key + '_callback'] = cb
+          return @
+      async[key] = -> # static method placeholders
+        # instantiate new async object and
+        # forward arguments to instance method
+        # by the same name
+        (a = new async)[key].apply a, arguments
+    )(key)
+    if _ref[key]? # method aliases
       for key2 of _ref[key]
         async.prototype[_ref[key][key2]] = async.prototype[key]

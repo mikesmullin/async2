@@ -5,7 +5,6 @@ Inspired by [async](https://github.com/caolan/async) library.
 
 ### Flow Control
 
-* [begin](#begin) : returns new chainable instance
 * [beforeAll / before](#beforeEach) : non-blocking function called once before first task
 * [beforeEach](#beforeEach) : non-blocking function called once before each task
 * [serial / series / blocking](#serial) : blocking function called in order
@@ -39,7 +38,7 @@ check = (what, done) ->
     done what
   ), 1000)
 
-async.begin(results)
+async
   .before((done) -> check 'awake', done )
   .beforeEach((done) -> check 'ready to switch focus', done )
   .do((done) -> check 'mobile', done )
@@ -54,7 +53,7 @@ async.begin(results)
 
 ### an overcomplicated display of flexibility
 ```coffeescript
-a = async.begin()
+a = new async
 for i in [1..10]
   ((i) -> a[(f = if i%3 then 'parallel' else 'serial')] (result, err) ->
     done = @; setTimeout (-> console.log "#{f} #{i}"; done()), 1000)(i)
@@ -65,7 +64,7 @@ a.end (result, err) ->
 ### a familiar example; similar to jQuery.ajax()
 ```coffeescript
 # TODO: going to have to flip my callback order to err,data if i want to be compatible with node.js core
-async.begin()
+async
   .beforeAll(-> loading.show() )
   .serial((done) -> fs.readFile done)
   .parallel((data) -> tweet data, @ )
@@ -89,7 +88,7 @@ async.begin()
 ### everything but the kitchen sink example
 ```coffeescript
 b = undefined # global scope
-a = async.begin()
+a = async
   a.series((result, err) ->
     setTimeout (=>
       doSomething()

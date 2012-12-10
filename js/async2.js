@@ -3,16 +3,12 @@
   var async;
 
   module.exports = async = (function() {
-    var key, key2, _ref;
+    var key, key2, _fn, _ref;
 
     async.whilst = function(test, iterator, callback) {
       var _this;
       _this = this;
       return test() ? iterator(function(err){return err ? callback(err) : _this.whilst(test,iterator,callback)}) : callback();
-    };
-
-    async.begin = function() {
-      return new async();
     };
 
     function async(beginning_result) {
@@ -99,6 +95,18 @@
       return this;
     };
 
+    _fn = function(key) {
+      if (typeof async.prototype[key] === 'undefined') {
+        async.prototype[key] = function(cb) {
+          this[key + '_callback'] = cb;
+          return this;
+        };
+      }
+      return async[key] = function() {
+        var a;
+        return (a = new async)[key].apply(a, arguments);
+      };
+    };
     for (key in _ref = {
       'beforeAll': ['before'],
       'beforeEach': null,
@@ -110,17 +118,11 @@
       'success': null,
       'end': ['finally', 'ensure', 'afterAll', 'after', 'complete', 'done']
     }) {
-      if (typeof async.prototype[key] === 'undefined') {
-        (function(key) {
-          return async.prototype[key] = function(cb) {
-            this[key + '_callback'] = cb;
-            return this;
-          };
-        })(key);
-      }
+      _fn(key);
       if (_ref[key] != null) {
         for (key2 in _ref[key]) {
           async.prototype[_ref[key][key2]] = async.prototype[key];
+          async[_ref[key][key2]] = async[key];
         }
       }
     }

@@ -20,9 +20,9 @@ rdelay=(f)->setTimeout f,Math.random()*100*Math.random()*10
 describe 'Async2', ->
 
   it 'auto-instantiates a new async', ->
-    o = async
+    a = async
       .serial(-> 'hello')
-    assert.notEqual async, o
+    assert.notEqual async, a
 
   #it 'can do everything', (done) ->
 
