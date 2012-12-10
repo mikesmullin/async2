@@ -62,14 +62,15 @@ module.exports = class async
     return @
 
   for key of _ref = {
+    'begin': ['new', 'try'],
     'beforeAll': ['before'],
     'beforeEach': null
     'serial': ['series', 'blocking']
     'parallel': ['nonblocking']
+    'do': ['then']
     'afterEach': ['between', 'inbetween']
     'error': ['catch', 'rescue']
-    'do': ['then']
-    'success': null
+    'success': ['else']
     'end': ['finally', 'ensure', 'afterAll', 'after', 'complete', 'done']
   }
     ((key) ->
@@ -86,3 +87,4 @@ module.exports = class async
     if _ref[key]? # method aliases
       for key2 of _ref[key]
         async.prototype[_ref[key][key2]] = async.prototype[key]
+        async[_ref[key][key2]] = async[key]

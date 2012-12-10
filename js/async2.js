@@ -108,6 +108,7 @@
       };
     };
     for (key in _ref = {
+      'begin': ['new', 'try'],
       'beforeAll': ['before'],
       'beforeEach': null,
       'serial': ['series', 'blocking'],
@@ -115,7 +116,7 @@
       'afterEach': ['between', 'inbetween'],
       'error': ['catch', 'rescue'],
       'do': ['then'],
-      'success': null,
+      'success': ['else'],
       'end': ['finally', 'ensure', 'afterAll', 'after', 'complete', 'done']
     }) {
       _fn(key);

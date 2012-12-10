@@ -5,6 +5,7 @@ Inspired by [async](https://github.com/caolan/async) library.
 
 ### Flow Control
 
+* [begin / try / new](#begin) : chainable instantiation; not required but sometimes useful
 * [beforeAll / before](#beforeEach) : non-blocking function called once before first task
 * [beforeEach](#beforeEach) : non-blocking function called once before each task
 * [serial / series / blocking](#serial) : blocking function called in order
@@ -12,7 +13,7 @@ Inspired by [async](https://github.com/caolan/async) library.
 * [do / then](#serial) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#afterEach) : non-blocking function called once after each task
 * [error / catch / rescue](#rescue) : blocking function called when error occurs
-* [success](#success) : non-blocking function called after all tasks have completed, but only if no errors occur
+* [success / else](#success) : non-blocking function called after all tasks have completed, but only if no errors occur
 * [end / finally / ensure / afterAll / after / complete / done](#end) : blocking function called after all tasks have completed
 * [whilst](#whilst) : provide test, iterator, and callback functions. will iterate until test passes, then execute callback
 
@@ -53,7 +54,7 @@ async
 
 ### an overcomplicated display of flexibility
 ```coffeescript
-a = new async
+a = async.new()
 for i in [1..10]
   ((i) -> a[(f = if i%3 then 'parallel' else 'serial')] (result, err) ->
     done = @; setTimeout (-> console.log "#{f} #{i}"; done()), 1000)(i)
@@ -61,11 +62,13 @@ a.end (result, err) ->
   console.log 'try this in async.js!'
 ```
 
-### a familiar example; similar to jQuery.ajax()
+### a few familiar examples
 ```coffeescript
-# TODO: going to have to flip my callback order to err,data if i want to be compatible with node.js core
+# similar to jQuery.ajax()
 async
   .beforeAll(-> loading.show() )
+  # TODO: going to have to flip my callback order to (err, data)
+  # if i want to be compatible with node.js core here
   .serial((done) -> fs.readFile done)
   .parallel((data) -> tweet data, @ )
   .parallel((data) -> fbook data, @ )
@@ -74,6 +77,14 @@ async
   .success((data) -> console.log data )
   .complete(-> loading.hide() )
 
+# similar to javascript try/catch/finally exception handling
+# also works with begin/rescue/else/ensure
+async.try()
+  .series((done) -> salmon done)
+  .series((done) -> catfish done)
+  .catch((e) -> console.log "something fishy: #{err}")
+  .finally ->
+    console.log 'ready to eat!'
 
 (next) # serial
 (next, err) #

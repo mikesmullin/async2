@@ -24,6 +24,10 @@ describe 'Async2', ->
       .serial(-> 'hello')
     assert.notEqual async, a
 
+  it 'allows chainable manual instantiation', ->
+    a = async.new() # alternative to (new async).
+    assert.notEqual async, a
+
   #it 'can do everything', (done) ->
 
   #  console.log 'starting serial/parallel example... should be a A b c d e f D F g h G success end'
