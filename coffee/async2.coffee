@@ -1,4 +1,11 @@
-module.exports = class async
+not ((name, context, definition) ->
+  if typeof require is 'function' and
+     typeof exports is 'object' and
+     typeof module is 'object'
+    module.exports = definition
+  else
+    context[name] = definition
+)('async', this, class async
   @whilst: (test, iterator, callback) ->
     _this = this
     `test() ? iterator(function(err){return err ? callback(err) : _this.whilst(test,iterator,callback)}) : callback()`
@@ -88,3 +95,4 @@ module.exports = class async
       for key2 of _ref[key]
         async.prototype[_ref[key][key2]] = async.prototype[key]
         async[_ref[key][key2]] = async[key]
+)

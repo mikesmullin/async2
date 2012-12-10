@@ -2,7 +2,13 @@
 (function() {
   var async;
 
-  module.exports = async = (function() {
+  !(function(name, context, definition) {
+    if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
+      return module.exports = definition;
+    } else {
+      return context[name] = definition;
+    }
+  })('async', this, async = (function() {
     var key, key2, _fn, _ref;
 
     async.whilst = function(test, iterator, callback) {
@@ -130,6 +136,6 @@
 
     return async;
 
-  })();
+  })());
 
 }).call(this);
