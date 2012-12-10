@@ -12,13 +12,22 @@ class Debugger
 
 delay=(s,f)->setTimeout f,s
 rdelay=(f)->setTimeout f,Math.random()*100*Math.random()*10
-since=(d)->(d-new Date)*-1
+since=(d)->new Date-d
 
 # you can accomplish anything you want in a single hierarchy
 # just by reordering the order of operations
 # no real need to nest two asyncs
 
 describe 'Async2', ->
+
+  start = undefined
+
+  beforeEach ->
+    start = new Date
+    slowFunc = (log, sec, done) ->
+      delay sec, ->
+        console.log "[#{(new Date - start)/1000}s] #{log}"
+        done()
 
   it 'auto-instantiates a new async', ->
     a = async
@@ -30,7 +39,6 @@ describe 'Async2', ->
     assert.notEqual async, a
 
   it 'allows explicit blocking with serial()', (done) ->
-    start = new Date
     async
       .serial(-> delay 100, @ )
       .serial(-> delay 50, @ )
@@ -39,7 +47,6 @@ describe 'Async2', ->
         done()
 
   it 'allows explicit non-blocking with parallel()', (done) ->
-    start = new Date
     async
       .parallel(-> delay 100, @ )
       .parallel(-> delay 50, @ )
@@ -48,7 +55,6 @@ describe 'Async2', ->
         done()
 
   it 'allows auto-blocking with then() based on function argument length', (done) ->
-    start = new Date
     async
       .then((result) -> delay 200, @ ) # serial
       .then(-> delay 100, @ ) # parallel
@@ -59,7 +65,6 @@ describe 'Async2', ->
 
   it 'can accomplish async.js::auto() with chain ordering', (done) ->
     # see also: https://github.com/caolan/async#auto
-    start = new Date
     async
       .parallel(->( get_data = (cb) -> delay 10, cb )(@))
       .serial(->( make_folder = (cb) -> delay 50, cb )(@)) # same time as get_data
@@ -71,7 +76,6 @@ describe 'Async2', ->
 
   it 'can accomplish async.js::waterfall() with serial()', (done) ->
     # see also: https://github.com/caolan/async#waterfall
-    start = new Date
     async
       .serial(-> delay 50, @ 'async.js is silly. pass it on.' )
       .serial((result)-> delay 50, @ result )
