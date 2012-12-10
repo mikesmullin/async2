@@ -20,13 +20,13 @@ not ((name, context, definition) ->
       a = @a[@a.length-1] # skip to end callback
       @a = []
     else if @a.length
-      a = @a[0]
+      a = @a[@a.length-1]
     if typeof a isnt 'undefined'
       a.call (->), result, err
 
   _pop: (parallel, result, err) ->
-    current = @a.shift()
-    next = @a[0]
+    current = @a.pop()
+    next = @a[@a.length-1]
     @beforeEach_callback result, err if @beforeEach_callback?
     (result, err) =>
       @processed++
@@ -72,6 +72,7 @@ not ((name, context, definition) ->
       else if @success_callback?
         @success_callback result
       cb.call (->), result, err
+    @a.reverse() # 6-10x faster to push/pop than shift
     @_call @beginning_result, null
     return @
 
