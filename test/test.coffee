@@ -65,12 +65,23 @@ describe 'Async2', ->
 
   it 'can accomplish async.js::auto() with chain ordering', (done) ->
     # see also: https://github.com/caolan/async#auto
-    async
-      .parallel(->( get_data = (cb) -> delay 10, cb )(@))
-      .serial(->( make_folder = (cb) -> delay 50, cb )(@)) # same time as get_data
-      .serial(->( write_file = (cb) -> delay 100, cb )(@)) # after get_data and make_folder
-      .serial(->( email_link = (cb) -> delay 250, cb )(@)) # after write_file
-      .end ->
+    async.auto
+      get_data: -> # no args; parallel
+        # async code to get some data
+        delay 10, @
+      make_folder: (result) -> # args; serial
+        # async code to create a directory to store a file in
+        # this is run at the same time as getting the data
+        delay 50, @
+      write_file: (result) -> # args; serial
+        # once there is some data and the directory exists
+        # write the data to a file in the directory
+        delay 100, @
+      email_link: (result) -> # args; serial
+        # once the file is written let's email a link to it...
+        # results.write_file contains the filename returned by write_file
+        delay 250, @
+      end: -> # couple different ways this last part could have been done
         assert.closeTo Math.max(10,50)+100+250, since(start), 25
         done()
 
