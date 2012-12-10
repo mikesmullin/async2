@@ -54,8 +54,8 @@ not ((name, context, definition) ->
   parallel: (cb) ->
     @_push cb, true
 
-  do: (cb) ->
-    @_push cb, !!cb.length
+  then: (cb) ->
+    @_push cb, !cb.length
 
   end: (cb) ->
     @a.push (result, err) =>
@@ -74,7 +74,7 @@ not ((name, context, definition) ->
     'beforeEach': null
     'serial': ['series', 'blocking']
     'parallel': ['nonblocking']
-    'do': ['then']
+    'then': ['do']
     'afterEach': ['between', 'inbetween']
     'error': ['catch', 'rescue']
     'success': ['else']

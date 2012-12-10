@@ -80,8 +80,8 @@
       return this._push(cb, true);
     };
 
-    async.prototype["do"] = function(cb) {
-      return this._push(cb, !!cb.length);
+    async.prototype.then = function(cb) {
+      return this._push(cb, !cb.length);
     };
 
     async.prototype.end = function(cb) {
@@ -119,9 +119,9 @@
       'beforeEach': null,
       'serial': ['series', 'blocking'],
       'parallel': ['nonblocking'],
+      'then': ['do'],
       'afterEach': ['between', 'inbetween'],
       'error': ['catch', 'rescue'],
-      'do': ['then'],
       'success': ['else'],
       'end': ['finally', 'ensure', 'afterAll', 'after', 'complete', 'done']
     }) {

@@ -12,6 +12,7 @@ class Debugger
 
 delay=(s,f)->setTimeout f,s
 rdelay=(f)->setTimeout f,Math.random()*100*Math.random()*10
+since=(d)->(d-new Date)*-1
 
 # you can accomplish anything you want in a single hierarchy
 # just by reordering the order of operations
@@ -27,6 +28,35 @@ describe 'Async2', ->
   it 'allows chainable manual instantiation', ->
     a = async.new() # alternative to (new async).
     assert.notEqual async, a
+
+  it 'allows explicit blocking with serial()', (done) ->
+    start = new Date
+    async
+      .serial(-> delay 100, @ )
+      .serial(-> delay 50, @ )
+      .end ->
+        assert.closeTo 100+50, since(start), 25
+        done()
+
+  it 'allows explicit non-blocking with parallel()', (done) ->
+    start = new Date
+    async
+      .parallel(-> delay 100, @ )
+      .parallel(-> delay 50, @ )
+      .end ->
+        assert.closeTo Math.max(100,50), since(start), 25
+        done()
+
+  it 'allows auto-blocking with then() based on function argument length', (done) ->
+    start = new Date
+    async
+      .then((result) -> delay 200, @ ) # serial
+      .then(-> delay 100, @ ) # parallel
+      .then(-> delay 50, @ ) # parallel
+      .end ->
+        assert.closeTo 200+Math.max(100,50), since(start), 25
+        done()
+
 
   #it 'can do everything', (done) ->
 
