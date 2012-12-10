@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "pretest": "coffee -o js coffee/async2.coffee",
+    "pretest": "coffee --bare -o js coffee/async2.coffee",
     "test": "mocha --reporter spec --bail --ui bdd --colors --timeout 10000 --compilers coffee:coffee-script --require coffee-script --require test/helpers.coffee test/test.coffee"
   },
   "repository": {

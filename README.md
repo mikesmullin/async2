@@ -1,8 +1,6 @@
 # Async2.js
 
-Better asynchronous javascript flow control in [157 lines](async2/blob/master/js/async2.js).
-
-Actually its probably half that if backward-compatibility were separated to `async-legacy.js`.
+Better asynchronous javascript flow control in [98 lines](async2/blob/master/js/async2.js) or [2.59KB minified (990 bytes gzipped)](https://raw.github.com/mikesmullin/async2/master/js/async2.min.js).
 
 Inspired by [async](https://github.com/caolan/async),
 [mini-async](https://github.com/mikesmullin/mini-async),
@@ -35,6 +33,8 @@ libraries.
 > order of operations
 
 > escape callback hell!"
+
+For the latest examples, review [./test/test.coffee](async2/blob/master/test/test.coffee)
 
 <a name="begin" />
 ### an overcomplicated display of flexibility
@@ -93,8 +93,6 @@ a = async
   .end (result, err) ->
     console.log "The wait is over.")
 ```
-
-For the latest examples, review [./test/test.coffee](async2/blob/master/test/test.coffee)
 
 TODO
 ----
