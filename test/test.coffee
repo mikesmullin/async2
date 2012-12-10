@@ -1,33 +1,10 @@
 async = require '../coffee/async2'
-chai = require 'chai'
-assert = chai.assert
+assert = require('chai').assert
 
-class Debugger
-  @started: new Date()
-  @log: (s) ->
-    if console?
-      current = new Date()
-      s.unshift "[#{(current - @started) / 1000}s]"
-      console.log s
-
-delay=(s,f)->setTimeout f,s
-rdelay=(f)->setTimeout f,Math.random()*100*Math.random()*10
-since=(d)->new Date-d
-
-# you can accomplish anything you want in a single hierarchy
-# just by reordering the order of operations
-# no real need to nest two asyncs
-
-describe 'Async2', ->
-
+describe 'async2', ->
   start = undefined
-
   beforeEach ->
     start = new Date
-    slowFunc = (log, sec, done) ->
-      delay sec, ->
-        console.log "[#{(new Date - start)/1000}s] #{log}"
-        done()
 
   it 'auto-instantiates a new async', ->
     a = async
