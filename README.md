@@ -1,7 +1,16 @@
 # Async2.js
 
-Better asynchronous javascript flow control in 132 lines.
-Inspired by [async](https://github.com/caolan/async) library.
+Better asynchronous javascript flow control in [157 lines](async2/blob/master/js/async2.js).
+
+Actually its probably half that if backward-compatibility were separated to `async-legacy.js`.
+
+Inspired by [async](https://github.com/caolan/async),
+[mini-async](https://github.com/mikesmullin/mini-async),
+[Mocha](https://github.com/visionmedia/mocha),
+[Chai](https://github.com/chaijs/chai),
+[Should.js](https://github.com/visionmedia/should.js/), and
+[IcedCoffeeScript](http://maxtaco.github.com/coffee-script/)/[TameJs](http://tamejs.org/)
+libraries.
 
 ### Flow Control
 
@@ -127,7 +136,7 @@ async.parallel [
   # done
 ```
 
-For the latest examples, review [test/test.coffee]()
+For the latest examples, review [./test/test.coffee](async2/blob/master/test/test.coffee)
 
 TODO
 ----
