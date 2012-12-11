@@ -123,6 +123,63 @@ describe 'async2', ->
         assert.closeTo 5*50, since(start), 25
         done()
 
+  #### an overcomplicated display of flexibility
+  #```coffeescript
+  #a = async.new()
+  #for i in [1..10]
+  #  ((i) -> a[(f = if i%3 then 'parallel' else 'serial')] (result, err) ->
+  #    done = @; setTimeout (-> console.log "#{f} #{i}"; done()), 1000)(i)
+  #a.end (result, err) ->
+  #  console.log 'try this in async.js!'
+  #```
+
+  #### a few familiar examples
+  #```coffeescript
+  ## similar to jQuery.ajax()
+  #async
+  #  .beforeAll(-> loading.show() )
+  #  # TODO: going to have to flip my callback order to (err, data)
+  #  # if i want to be compatible with node.js core here
+  #  .serial((done) -> fs.readFile done)
+  #  .parallel((data) -> tweet data, @ )
+  #  .parallel((data) -> fbook data, @ )
+  #  .parallel((data) -> gplus data, @ )
+  #  .error((err) -> alert err )
+  #  .success((data) -> console.log data )
+  #  .complete(-> loading.hide() )
+
+  ## similar to javascript try/catch/finally exception handling
+  ## also works with begin/rescue/else/ensure
+  #async.try()
+  #  .series((done) -> salmon done)
+  #  .series((done) -> catfish done)
+  #  .catch((e) -> console.log "something fishy: #{err}")
+  #  .finally ->
+  #    console.log 'ready to eat!'
+  #```
+
+  #### everything but the kitchen sink example
+  #```coffeescript
+  #b = undefined # global scope
+  #a = async
+  #  a.series((result, err) ->
+  #    setTimeout (=>
+  #      doSomething()
+  #      @ result, err # `this` object is the done() function
+  #    ), 1000)
+  #  .parallel(-> "chaining with (result, err) is normal but sometimes you don't care." )
+  #  .parallel((result, err) -> sometimesYourDelegatesImplementForYou @, result, err )
+  #  .series(-> sometimesDelegatesOnlyReturnAResult @ )
+  #  .series((result) -> result['unique'] = "end could receive results merged inside the chain"; @ result )
+  #  .parallel(-> "parallel calling the done() callback is still required. sry"; @() )
+  #  .parallel(-> b = "you could also pass results via the global scope"; @() )
+  #  .inbetween((result, err) -> console.log "processing... #{a.processed} of #{a.beginning_length} or #{a.processed / a.beginning_length * 100}% complete")
+  #  .rescue((err) -> console.log "An error occurred: #{err}")
+  #  .success((result) -> console.log "The results are in: #{result}")
+  #  .end (result, err) ->
+  #    console.log "The wait is over.")
+  #```
+
   #it 'can do everything', (done) ->
   #  console.log 'starting serial/parallel example... should be a A b c d e f D F g h G success end'
   #  a = async.begin()
