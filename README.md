@@ -1,6 +1,6 @@
 # Async2.js
 
-Better asynchronous javascript flow control in [98 lines](https://github.com/mikesmullin/async2/blob/production/js/async2.js) or [2.59KB minified (990 bytes gzipped)](https://raw.github.com/mikesmullin/async2/production/js/async2.min.js).
+Better asynchronous javascript flow control in [98 lines](https://github.com/mikesmullin/async2/blob/stable/js/async2.js) or [2.59KB minified (990 bytes gzipped)](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js).
 
 Inspired by [async](https://github.com/caolan/async),
 [mini-async](https://github.com/mikesmullin/mini-async),
@@ -46,7 +46,7 @@ async('pretend/path/to/file') # accepts initial input passed via waterfall to se
       #done()
 ```
 
-For the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/async2/blob/production/test/test.coffee).
+For the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/async2/blob/stable/test/test.coffee).
 
 Or try it immediately in your browser with [codepen](http://codepen.io/mikesmullin/pen/tscfD).
 
