@@ -201,22 +201,24 @@ describe 'async2', ->
         assert.deepEqual result, score: 11
         done()
 
-  # it 'can do nextTick(f)' # why? node does it fine
+  it 'much easier to use within for ... loops than tranditional async.js', (done) ->
+    delay = (s,f) -> setTimeout f, s
+    flow = new async
+    for i in [1..10]
+      ((i) ->
+        method = if i%3 then 'parallel' else 'serial' # an overcomplicated display of flexibility
+        flow[method] (next) ->
+          delay 25, ->
+            #console.log "#{method} #{i}"
+            next()
+      )(i)
+    flow.done (err, results...) ->
+      #console.log 'try this in async.js!'
+      done()
+
   it 'can do immediate serial execution push(f)'
   it 'can do grouped immediate serial execution push("name", f)'
 
-
-
-  # TODO: uncomment this; it should work
-  #### an overcomplicated display of flexibility
-  #```coffeescript
-  #a = async.new()
-  #for i in [1..10]
-  #  ((i) -> a[(f = if i%3 then 'parallel' else 'serial')] (result, err) ->
-  #    done = @; setTimeout (-> console.log "#{f} #{i}"; done()), 1000)(i)
-  #a.end (result, err) ->
-  #  console.log 'try this in async.js!'
-  #```
 
   #### a few familiar examples
   #```coffeescript
