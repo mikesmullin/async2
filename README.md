@@ -61,27 +61,21 @@ But better:
 async
   .serial((next) ->
     assert.typeOf next, 'function'
-    next()
+    next null, 'async data' # e.g., fs.readFile(), or jQuery.ajax()
   )
-  .serial((next) ->
+  .parallel((data, next) ->
+    assert.equal a, 'async data'
     assert.typeOf next, 'function'
-    next null, 1
+    next null
   )
-  .serial((a, next) ->
-    assert.equal a, 1
+  .parallel((data, next) ->
+    assert.equal a, 'async data'
     assert.typeOf next, 'function'
-    next null, 1, 2
+    next null
   )
-  .serial((a, b, next) ->
-    assert.equal a, 1
-    assert.equal b, 2
-    assert.typeOf next, 'function'
-    next null, 1, 2, 3, 4, 5, 6
-  )
-  .serial((results..., next) ->
-    assert.deepEqual s, [ 1, 2, 3, 4, 5, 6 ]
-    assert.typeOf next, 'function'
-    next null, results
+  .serial(->
+    assert.typeOf @, 'function' # this is same as next()
+    @ null, 1, 2, 3, 4, 5, 6
   )
   .end (err, results...) ->
     assert.equal err, null
