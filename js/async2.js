@@ -67,7 +67,9 @@
       } else {
         _this.success_callback.apply(_this._next(!_this.success_callback.length), arguments);
       }
-      return cb.apply({}, arguments);
+      if (typeof cb === 'function') {
+        return cb.apply({}, arguments);
+      }
     });
     this.a.reverse();
     (this.begin_callback = this.begin_callback || function() {}) && (this.beforeAll_callback = this.beforeAll_callback || function() {}) && (this.beforeEach_callback = this.beforeEach_callback || function() {}) && (this.afterEach_callback = this.afterEach_callback || function() {}) && (this.error_callback = this.error_callback || function() {}) && (this.success_callback = this.success_callback || function() {});
@@ -100,6 +102,12 @@
       return (b = new A)[func].apply(b, arguments);
     };
   }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A["try"] = A.begin = A.start = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A["new"] = A.flow = A["with"] = _static('new')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
+  A.q = {};
+  A.push = function(g, f) {
+    A.q[g] = A.q[g] || new A;
+    A.q[g].serial(f).go();
+    return A;
+  };
   A.whilst = function(test, iterator, cb) {
     var _this = this;
     (test() && iterator(function(err) {

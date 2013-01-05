@@ -275,6 +275,22 @@ describe 'async2', ->
         assert.typeOf result, 'undefined'
         done()
 
-  it 'can do group-queued automatic serial execution with push("group_name", f)', ->
+  it 'WIP can do group-queued automatic serial execution with push("group_name", f)', ->
     # similar to nextTick() or setTimeout(->, 0), but grouped
+    out = ''
+    debug = (m,s,cb) ->
+      async.delay s, ->
+        out += m
+        cb null
 
+    # push is always serial
+    async.push 'Z', ->
+      debug 'a', 300, @
+    async.push 'X', ->
+      debug 'b', 50, @
+    async.push 'Z', ->
+      debug 'c', 100, @
+    async.push 'X', ->
+      debug 'd', 30, @
+
+    assert.equal 'bdac', out

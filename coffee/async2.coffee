@@ -57,7 +57,7 @@ not ((context, definition) ->
         @error_callback.apply @_next(!@error_callback.length), arguments
       else
         @success_callback.apply @_next(!@success_callback.length), arguments
-      cb.apply {}, arguments
+      cb.apply {}, arguments if typeof cb is 'function'
     @a.reverse() # 6-10x faster to push/pop than shift
     # initialize callbacks
     (@begin_callback = @begin_callback or ->) and
@@ -110,6 +110,12 @@ not ((context, definition) ->
     (A.success = A.else = _static 'success')
 
   # public static-only functions
+  A.q = {}
+  A.push = (g, f) ->
+    A.q[g] = A.q[g] or new A
+    A.q[g].serial(f).go()
+    A
+
   A.whilst = (test, iterator, cb) ->
     (test() and
       iterator (err) =>
