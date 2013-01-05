@@ -18,6 +18,7 @@ not ((context, definition) ->
     this.beginning_result = beginning_result
     this.beginning_length = 0;
     this.processed = 0;
+    this.processing = false;
   };`
 
   # private instance methods
@@ -52,12 +53,16 @@ not ((context, definition) ->
 
   # public instance methods
   A::end = A::finally = A::ensure = A::afterAll = A::after = A::complete = A::done = A::go = (cb) ->
+    return unless @beginning_length # must have fns in queue
+    return if @processing # must not already be going
+    @processing = true
     @a.push =>
       if arguments[0]
         @error_callback.apply @_next(!@error_callback.length), arguments
       else
         @success_callback.apply @_next(!@success_callback.length), arguments
-      cb.apply {}, arguments if typeof cb is 'function'
+      @processing = false
+      cb.apply null, arguments if typeof cb is 'function'
     @a.reverse() # 6-10x faster to push/pop than shift
     # initialize callbacks
     (@begin_callback = @begin_callback or ->) and
@@ -112,8 +117,21 @@ not ((context, definition) ->
   # public static-only functions
   A.q = {}
   A.push = (g, f) ->
-    A.q[g] = A.q[g] or new A
-    A.q[g].serial(f).go()
+    console.log "push() called for group \"#{g}\""
+    if A.q[g]
+      console.log "A.q['#{g}'] already exists; reusing..."
+    else
+      console.log "A.q['#{g}'] undefined; instantiating new async..."
+      A.q[g] = new A
+    #A.q[g] = A.q[g] or new A
+
+    A.q[g].serial(->
+      console.log "entering serial()"
+      f.apply this, arguments
+      console.log "exiting serial()"
+    ).go(->
+      console.log "go() returned with arguments", arguments
+    )
     A
 
   A.whilst = (test, iterator, cb) ->

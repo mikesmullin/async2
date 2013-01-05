@@ -278,11 +278,12 @@ describe 'async2', ->
   it 'WIP can do group-queued automatic serial execution with push("group_name", f)', (done) ->
     # similar to nextTick() or setTimeout(->, 0), but grouped
     out = ''
+    console.log "\n\n"
     debug = (m,s,cb) ->
-      console.log "debug() called with ", m, s
+      console.log "debug() will delay #{s}ms then append #{m}"
       async.delay s, ->
         out += m
-        console.log "my delay() called with #{m}. out is now: #{out}"
+        console.log "times up! appended #{m} to out, which is now: #{out}"
         cb null
 
     Z = new async
@@ -299,11 +300,17 @@ describe 'async2', ->
     X.go()
     async.delay 100+50+300+30+25, ->
       assert.equal 'bdac', out
-      console.log 'done'
+      console.log '-------------'
       out = ''
 
       # push is always serial
       # above 12 lines do same as below 8
+      # basically you can push onto the end of the serial array
+      # at any time, even while it is being processed.
+      # and its ok to call go() more than once; duplicate calls
+      # will be ignored unless there are actually some functions enqueued
+      # and it is not already processing.
+
       # TODO: make it push aka nextTickGroup
       async.push 'Z', ->
         debug 'a', 100, @
