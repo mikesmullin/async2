@@ -12,12 +12,12 @@ libraries.
 
 ### Flow Control
 
-* [start / begin / new / flow](#find-examples-in-the-tests) : optional chainable instantiator; receives beginning result; useful in series
+* [new / flow / with](#find-examples-in-the-tests) : optional chainable instantiator; receives beginning result; useful in series
 * [beforeAll / before](#find-examples-in-the-tests) : non-blocking function called once before first task
 * [beforeEach](#find-examples-in-the-tests) : non-blocking function called once before each task
 * [serial / series / blocking / waterfall](#find-examples-in-the-tests) : blocking function called in order; results optionally waterfalled
 * [parallel / nonblocking](#find-examples-in-the-tests) : non-blocking function called in order
-* [do / then / try / auto](#find-examples-in-the-tests) : optionally blocking function called in order; determined by length of arguments callback expects
+* [do / then / try / begin / start / auto](#find-examples-in-the-tests) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#find-examples-in-the-tests) : non-blocking function called once after each task
 * [error / catch / rescue](#find-examples-in-the-tests) : blocking function called when error occurs
 * [success / else](#find-examples-in-the-tests) : non-blocking function called after all tasks have completed, but only if no errors occur

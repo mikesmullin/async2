@@ -76,10 +76,10 @@ not ((context, definition) ->
   A::parallel = A::nonblocking = ->
     @_push arguments, true
 
-  A::do = A::then = A::try = A::auto = ->
+  A::do = A::then = A::try = A::begin = A::start = A::auto = ->
     @_push arguments, null
 
-  A::start = A::begin = A::new = A::flow = (b) ->
+  A::new = A::flow = A::with = (b) ->
     @beginning_result = b
     @
 
@@ -100,9 +100,9 @@ not ((context, definition) ->
     (b = new A)[func].apply b, arguments) and
     (A.serial = A.series = A.blocking = A.waterfall = _static 'serial') and
     (A.parallel = A.nonblocking = _static 'parallel') and
-    (A.do = A.then = A.try = A.auto = _static 'do') and
+    (A.do = A.then = A.try = A.begin = A.start = A.auto = _static 'do') and
     (A.end = A.finally = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static 'end') and
-    (A.start = A.begin = A.new = A.flow = _static 'begin') and
+    (A.new = A.flow = A.with = _static 'new') and
     (A.beforeAll = A.before = _static 'beforeAll') and
     (A.beforeEach = _static 'beforeEach') and
     (A.afterEach = A.between = A.inbetween = _static 'afterEach') and

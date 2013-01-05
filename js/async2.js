@@ -81,10 +81,10 @@
   A.prototype.parallel = A.prototype.nonblocking = function() {
     return this._push(arguments, true);
   };
-  A.prototype["do"] = A.prototype.then = A.prototype["try"] = A.prototype.auto = function() {
+  A.prototype["do"] = A.prototype.then = A.prototype["try"] = A.prototype.begin = A.prototype.start = A.prototype.auto = function() {
     return this._push(arguments, null);
   };
-  A.prototype.start = A.prototype.begin = A.prototype["new"] = A.prototype.flow = function(b) {
+  A.prototype["new"] = A.prototype.flow = A.prototype["with"] = function(b) {
     this.beginning_result = b;
     return this;
   };
@@ -99,7 +99,7 @@
       var b;
       return (b = new A)[func].apply(b, arguments);
     };
-  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A["try"] = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A.start = A.begin = A["new"] = A.flow = _static('begin')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
+  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A["try"] = A.begin = A.start = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A["new"] = A.flow = A["with"] = _static('new')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
   A.whilst = function(test, iterator, cb) {
     var _this = this;
     (test() && iterator(function(err) {

@@ -174,7 +174,7 @@ describe 'async2', ->
         done()
 
   it 'receives beginning result within optional chainable instantiator', (done) ->
-    async.start(score: 1)
+    async.with(score: 1)
       .serial((result, next) ->
         assert.deepEqual result, score: 1
         assert.typeOf next, 'function'
@@ -251,7 +251,25 @@ describe 'async2', ->
         assert.typeOf result, 'undefined'
         done()
 
-  it 'can be written similarly to ruby begin/rescue/else/ensure/end exception handling'
+  it 'can be written similarly to ruby begin/rescue/else/ensure exception handling', (done) ->
+    called = false
+    async
+      .begin(->
+        @ new Error 'thrown node cb style'
+      )
+      .rescue((err) ->
+        called = true
+        assert.equal ''+err, 'Error: thrown node cb style'
+      )
+      .else((result) ->
+        console.log 'Else'
+        assert false, 'else() should not have been called here'
+      )
+      .ensure (err, result) ->
+        assert.ok called
+        assert.equal ''+err, 'Error: thrown node cb style'
+        assert.typeOf result, 'undefined'
+        done()
 
   it 'can do immediate serial execution push(f)'
   it 'can do grouped immediate serial execution push("name", f)'
