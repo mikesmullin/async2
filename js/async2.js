@@ -106,5 +106,8 @@
       return (!!err && cb(err)) || _this.whilst(test, iterator, cb);
     })) || cb();
   };
+  A.delay = function(ms, f) {
+    return setTimeout(f, ms);
+  };
   return A;
 })());

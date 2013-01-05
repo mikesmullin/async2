@@ -23,6 +23,7 @@ libraries.
 * [success / else](#find-examples-in-the-tests) : non-blocking function called after all tasks have completed, but only if no errors occur
 * [end / finally / ensure / afterAll / after / complete / done / go](#find-examples-in-the-tests) : blocking function called after all tasks have completed
 * [whilst](#find-examples-in-the-tests) : provide test, iterator, and callback functions. will iterate until test passes, then execute callback
+* [delay](#find-examples-in-the-tests) : inverts argument order to `setTimeout()` for easier CoffeeScript markup
 
 ## Quick Examples
 
@@ -40,14 +41,14 @@ Backward-compatible with async.js:
 
 ```coffeescript
 async.series [
- -> delay 100, @
- -> delay 50, @
+ -> async.delay 100, @
+ -> async.delay 50, @
 ], ->
   assert.closeTo 100+50, since(start), 25
 
   async.parallel [
-   -> delay 100, @
-   -> delay 50, @
+   -> async.delay 100, @
+   -> async.delay 50, @
   ], ->
     assert.closeTo (100+50)+100, since(start), 25
     done()
@@ -84,13 +85,12 @@ async
 In fact, way better:
 
 ```coffeescript
-delay = (s,f) -> setTimeout f, s
 flow = new async
 for i in [1..10]
   ((i) ->
     method = if i%3 then 'parallel' else 'serial' # an overcomplicated display of flexibility
     flow[method] (next) ->
-      delay 25, ->
+      async.delay 25, ->
         console.log "#{method} #{i}"
         next()
   )(i)

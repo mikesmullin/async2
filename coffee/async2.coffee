@@ -120,5 +120,8 @@ not ((context, definition) ->
       cb()
     return
 
+  A.delay = (ms, f) ->
+    setTimeout f, ms
+
   A
 )())

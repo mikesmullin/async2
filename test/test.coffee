@@ -18,25 +18,25 @@ describe 'async2', ->
 
   it 'allows explicit blocking with serial()', (done) ->
     async
-      .serial(-> delay 100, @ )
-      .serial(-> delay 50, @ )
+      .serial(-> async.delay 100, @ )
+      .serial(-> async.delay 50, @ )
       .end ->
         assert.closeTo 100+50, since(start), 25
         done()
 
   it 'allows explicit non-blocking with parallel()', (done) ->
     async
-      .parallel(-> delay 100, @ )
-      .parallel(-> delay 50, @ )
+      .parallel(-> async.delay 100, @ )
+      .parallel(-> async.delay 50, @ )
       .end ->
         assert.closeTo Math.max(100,50), since(start), 25
         done()
 
   it 'allows auto-blocking with then() based on function argument length', (done) ->
     async
-      .then((result) -> delay 200, @ ) # serial
-      .then(-> delay 100, @ ) # parallel
-      .then(-> delay 50, @ ) # parallel
+      .then((result) -> async.delay 200, @ ) # serial
+      .then(-> async.delay 100, @ ) # parallel
+      .then(-> async.delay 50, @ ) # parallel
       .end ->
         assert.closeTo 200+Math.max(100,50), since(start), 25
         done()
@@ -46,19 +46,19 @@ describe 'async2', ->
     async.auto
       get_data: -> # no args; parallel
         # async code to get some data
-        delay 10, @
+        async.delay 10, @
       make_folder: (result) -> # args; serial
         # async code to create a directory to store a file in
         # this is run at the same time as getting the data
-        delay 50, @
+        async.delay 50, @
       write_file: (result) -> # args; serial
         # once there is some data and the directory exists
         # write the data to a file in the directory
-        delay 100, @
+        async.delay 100, @
       email_link: (result) -> # args; serial
         # once the file is written let's email a link to it...
         # results.write_file contains the filename returned by write_file
-        delay 250, @
+        async.delay 250, @
       end: -> # couple different ways this last part could have been done
         assert.closeTo Math.max(10,50)+100+250, since(start), 25
         done()
@@ -75,14 +75,14 @@ describe 'async2', ->
 
   it 'backward-compatible with async.js; series() and parallel() accept enumerable objects, executing immediately', (done) ->
     async.series [
-     -> delay 100, @
-     -> delay 50, @
+     -> async.delay 100, @
+     -> async.delay 50, @
     ], ->
       assert.closeTo 100+50, since(start), 25
 
       async.parallel [
-       -> delay 100, @
-       -> delay 50, @
+       -> async.delay 100, @
+       -> async.delay 50, @
       ], ->
         assert.closeTo (100+50)+100, since(start), 25
         done()
@@ -90,7 +90,7 @@ describe 'async2', ->
   it 'follows node (results..., cb) and (err, results..., cb) conventions', (done) ->
     fs =
       readFile: (path, done) ->
-        delay 20, -> done null, "tons o' data from #{path}."
+        async.delay 20, -> done null, "tons o' data from #{path}."
     tweet = fbook = gplus = (data, done) -> done null, data
     results = {}
     (new async())
@@ -127,7 +127,7 @@ describe 'async2', ->
     a = 0
     out = []
     async.whilst (-> a < 5 ),
-      ((done) -> delay 50, -> out.push a++; done() ), ->
+      ((done) -> async.delay 50, -> out.push a++; done() ), ->
         assert.equal '0 1 2 3 4', out.join ' '
         assert.closeTo 5*50, since(start), 25
         done()
@@ -193,13 +193,12 @@ describe 'async2', ->
         done()
 
   it 'is MUCH easier to use within loops', (done) ->
-    delay = (s,f) -> setTimeout f, s
     flow = new async
     for i in [1..10]
       ((i) ->
         method = if i%3 then 'parallel' else 'serial' # an overcomplicated display of flexibility
         flow[method] (next) ->
-          delay 25, ->
+          async.delay 25, ->
             #console.log "#{method} #{i}"
             next()
       )(i)
