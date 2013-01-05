@@ -74,7 +74,7 @@ async
     next null
   )
   .serial(->
-    assert.typeOf @, 'function' # this is same as next()
+    assert.typeOf @, 'function' # `this` === `next`
     @ null, 1, 2, 3, 4, 5, 6
   )
   .end (err, results...) ->
