@@ -123,7 +123,7 @@ describe 'async2', ->
         assert.closeTo 5*50, since(start), 25
         done()
 
-  it 'takes callback as the only argument in the first serial', (done) ->
+  it 'passes cb as only argument to first serial fn', (done) ->
     async.flow()
       .serial((next) ->
         assert.typeOf next, 'function'
@@ -131,7 +131,43 @@ describe 'async2', ->
       )
       .finally()
 
-  it 'takes callback as the last argument of a variable length of arguments based upon the previous serial of a subsequent serial'
+  it 'passes cb as last arg of predictable arg length to subsequent serial fns', (done) ->
+    async.flow()
+      .serial((next) ->
+        assert.typeOf next, 'function'
+        next()
+      )
+      .serial((next) ->
+        assert.typeOf next, 'function'
+        next null, 1
+      )
+      .serial((a, next) ->
+        assert.equal a, 1
+        assert.typeOf next, 'function'
+        next null, 1, 2
+      )
+      .serial((a, b, next) ->
+        assert.equal a, 1
+        assert.equal b, 2
+        assert.typeOf next, 'function'
+        next null, 1, 2, 3, 4, 5, 6
+      )
+      .serial((a..., next) ->
+        assert.deepEqual a, [ 1, 2, 3, 4, 5, 6 ]
+        assert.typeOf next, 'function'
+        done()
+      )
+      .finally()
+
+  it 'passes cb as last argument to subsequent serial fns', (done) ->
+    async.flow()
+      .serial((next) ->
+        assert.typeOf next, 'function'
+        done()
+      )
+      .finally()
+
+
   it 'takes err, result as only arguments to finally in a series'
   # it 'can do nextTick(f)' # why? node does it fine
   it 'can do immediate serial execution push(f)'
