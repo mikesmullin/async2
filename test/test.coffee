@@ -275,7 +275,7 @@ describe 'async2', ->
         assert.typeOf result, 'undefined'
         done()
 
-  it 'WIP can do group-queued automatic serial execution with push("group_name", f)', (done) ->
+  it 'can do group-queued automatic serial execution with nextTickGroup("group_name", f)', (done) ->
     # similar to nextTick() or setTimeout(->, 0), but grouped
     out = ''
     debug = (m,s,cb) ->
