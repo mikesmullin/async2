@@ -19,6 +19,7 @@
     this.beginning_result = beginning_result
     this.beginning_length = 0;
     this.processed = 0;
+    this.q = {};
     this.processing = false;
   };;
   A.prototype._apply = function(args) {
@@ -99,6 +100,11 @@
     this.beginning_result = b;
     return this;
   };
+  A.prototype.nextTickGroup = A.prototype.push = function(g, f) {
+    this.q[g] = this.q[g] || new A;
+    this.q[g].serial(f).go();
+    return this;
+  };
   (_callback = function(func) {
     return function(cb) {
       this[func + '_callback'] = cb;
@@ -110,25 +116,7 @@
       var b;
       return (b = new A)[func].apply(b, arguments);
     };
-  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A["try"] = A.begin = A.start = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A["new"] = A.flow = A["with"] = _static('new')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
-  A.q = {};
-  A.push = function(g, f) {
-    console.log("push() called for group \"" + g + "\"");
-    if (A.q[g]) {
-      console.log("A.q['" + g + "'] already exists; reusing...");
-    } else {
-      console.log("A.q['" + g + "'] undefined; instantiating new async...");
-      A.q[g] = new A;
-    }
-    A.q[g].serial(function() {
-      console.log("entering serial()");
-      f.apply(this, arguments);
-      return console.log("exiting serial()");
-    }).go(function() {
-      return console.log("go() returned with arguments", arguments);
-    });
-    return A;
-  };
+  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A["try"] = A.begin = A.start = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A["new"] = A.flow = A["with"] = _static('new')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success')) && (A.nextTickGroup = A.push = _static('push'));
   A.whilst = function(test, iterator, cb) {
     var _this = this;
     (test() && iterator(function(err) {

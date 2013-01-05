@@ -278,48 +278,43 @@ describe 'async2', ->
   it 'WIP can do group-queued automatic serial execution with push("group_name", f)', (done) ->
     # similar to nextTick() or setTimeout(->, 0), but grouped
     out = ''
-    console.log "\n\n"
     debug = (m,s,cb) ->
-      console.log "debug() will delay #{s}ms then append #{m}"
       async.delay s, ->
         out += m
-        console.log "times up! appended #{m} to out, which is now: #{out}"
         cb null
 
     Z = new async
-    X = new async
     Z.serial ->
       debug 'a', 100, @
+    X = new async
     X.serial ->
       debug 'b', 50, @
     Z.serial ->
       debug 'c', 300, @
+    Z.go()
     X.serial ->
       debug 'd', 30, @
-    Z.go()
     X.go()
     async.delay 100+50+300+30+25, ->
       assert.equal 'bdac', out
-      console.log '-------------'
       out = ''
 
       # push is always serial
-      # above 12 lines do same as below 8
+      # above 12 lines behave the same as below 9
       # basically you can push onto the end of the serial array
       # at any time, even while it is being processed.
       # and its ok to call go() more than once; duplicate calls
       # will be ignored unless there are actually some functions enqueued
       # and it is not already processing.
-
-      # TODO: make it push aka nextTickGroup
-      async.push 'Z', ->
-        debug 'a', 100, @
-      async.push 'X', ->
-        debug 'b', 50, @
-      async.push 'Z', ->
-        debug 'c', 300, @
-      async.push 'X', ->
-        debug 'd', 30, @
+      async
+        .push 'Z', ->
+          debug 'a', 100, @
+        .push 'X', ->
+          debug 'b', 50, @
+        .push 'Z', ->
+          debug 'c', 300, @
+        .push 'X', ->
+          debug 'd', 30, @
 
       async.delay 100+50+300+30+25, ->
         assert.equal 'bdac', out

@@ -18,6 +18,7 @@ not ((context, definition) ->
     this.beginning_result = beginning_result
     this.beginning_length = 0;
     this.processed = 0;
+    this.q = {};
     this.processing = false;
   };`
 
@@ -88,6 +89,11 @@ not ((context, definition) ->
     @beginning_result = b
     @
 
+  A::nextTickGroup = A::push = (g, f) ->
+    @q[g] = @q[g] or new A
+    @q[g].serial(f).go()
+    @
+
   # public instance methods for callback functions
   (_callback = (func) -> (cb) ->
     @[func + '_callback'] = cb
@@ -112,28 +118,10 @@ not ((context, definition) ->
     (A.beforeEach = _static 'beforeEach') and
     (A.afterEach = A.between = A.inbetween = _static 'afterEach') and
     (A.error = A.catch = A.rescue = _static 'error') and
-    (A.success = A.else = _static 'success')
+    (A.success = A.else = _static 'success') and
+    (A.nextTickGroup = A.push = _static 'push')
 
   # public static-only functions
-  A.q = {}
-  A.push = (g, f) ->
-    console.log "push() called for group \"#{g}\""
-    if A.q[g]
-      console.log "A.q['#{g}'] already exists; reusing..."
-    else
-      console.log "A.q['#{g}'] undefined; instantiating new async..."
-      A.q[g] = new A
-    #A.q[g] = A.q[g] or new A
-
-    A.q[g].serial(->
-      console.log "entering serial()"
-      f.apply this, arguments
-      console.log "exiting serial()"
-    ).go(->
-      console.log "go() returned with arguments", arguments
-    )
-    A
-
   A.whilst = (test, iterator, cb) ->
     (test() and
       iterator (err) =>
