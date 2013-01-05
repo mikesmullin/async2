@@ -83,7 +83,7 @@ async
     done()
 ```
 
-In fact, way better, for more reasons than one:
+In fact, way better:
 
 ```coffeescript
 delay = (s,f) -> setTimeout f, s
