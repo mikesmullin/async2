@@ -55,7 +55,7 @@ async.series [
     done()
 ```
 
-But improved:
+But better thanks to several improvements:
 
 ```coffeescript
 async
