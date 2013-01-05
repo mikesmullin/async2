@@ -28,11 +28,9 @@ libraries.
 
 ### First, reflect upon our haiku mantra:
 
-> "thoughtful single-chain
-
-> order of operations
-
-> escape callback hell!"
+    5  thoughtful single-chain
+    7  order of operations
+    5  escape callback hell!
 
 <a name="find-examples-in-the-tests" />
 
