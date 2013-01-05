@@ -88,7 +88,7 @@ describe 'async2', ->
         delay 20, -> done null, "tons o' data from #{path}."
     tweet = fbook = gplus = (data, done) -> done null, data
     results = {}
-    async()
+    (new async())
       .serial((next) ->
         next null, 'pretend/path/to/file'
       )
@@ -173,20 +173,6 @@ describe 'async2', ->
         assert.deepEqual results, [ 1, 2, 3, 4, 5, 6 ]
         done()
 
-  it 'receives beginning result within constructor', (done) ->
-    async(score: 1)
-      .serial((result, next) ->
-        assert.deepEqual result, score: 1
-        assert.typeOf next, 'function'
-        result.score += 10
-        assert.equal result.score, 11
-        next null, result
-      )
-      .end (err, result) ->
-        assert.equal err, null
-        assert.deepEqual result, score: 11
-        done()
-
   it 'receives beginning result within optional chainable instantiator', (done) ->
     async.start(score: 1)
       .serial((result, next) ->
@@ -219,21 +205,38 @@ describe 'async2', ->
   it 'can do immediate serial execution push(f)'
   it 'can do grouped immediate serial execution push("name", f)'
 
+  it 'can waterfall serial results to parallel functions in the same flow', (done) ->
+    tweet = fbook = gplus = (data, cb) -> # mock async broadcast fns
+      assert.equal 'asynchronous data', data
+      cb null
+    async
+      .serial(-> @ null, 'asynchronous data' ) # e.g., fs.readFile()
+      .parallel((data) -> tweet data, @ )
+      .parallel((data) -> fbook data, @ )
+      .parallel((data) -> gplus data, @ )
+      .finally done
 
-  #### a few familiar examples
-  #```coffeescript
-  ## similar to jQuery.ajax()
-  #async
-  #  .beforeAll(-> loading.show() )
-  #  # TODO: going to have to flip my callback order to (err, data)
-  #  # if i want to be compatible with node.js core here
-  #  .serial((done) -> fs.readFile done)
-  #  .parallel((data) -> tweet data, @ )
-  #  .parallel((data) -> fbook data, @ )
-  #  .parallel((data) -> gplus data, @ )
-  #  .error((err) -> alert err )
-  #  .success((data) -> console.log data )
-  #  .complete(-> loading.hide() )
+  it 'can be written similarly to jQuery.ajax()', (done) ->
+    called = false
+    async
+      before: ->
+        #loading.show()
+        called = true
+      do: (next) ->
+        # main logic
+        assert.ok called
+        next 'err', 'result'
+      error: (err) ->
+        assert.equal 'err', 'err'
+        #alert err
+      success: (result) ->
+        assert false, 'success() should not have been called here'
+        #console.log data
+      complete: (err, result) ->
+        assert.equal err, 'err'
+        assert.equal result, 'result'
+        #loading.hide()
+        done()
 
   ## similar to javascript try/catch/finally exception handling
   ## also works with begin/rescue/else/ensure

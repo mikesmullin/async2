@@ -5,11 +5,14 @@ not ((context, definition) ->
   return context['async'] = definition
 )(this, (->
   # constructor
-  # the if statement in here is for the one case where
-  # async can be instantiated by just calling async()
+  # the if statement is for jQuery-like instantiation
   A = `function async(beginning_result) {
     if (typeof this.serial === 'undefined') {
-      return new A(arguments[0]);
+      var a = new A(), k;
+      for (k in arguments[0]) {
+        a[k](arguments[0][k]);
+      }
+      return a;
     }
     this.a = [];
     this.beginning_result = beginning_result
@@ -50,9 +53,10 @@ not ((context, definition) ->
   # public instance methods
   A::end = A::finally = A::ensure = A::afterAll = A::after = A::complete = A::done = A::go = (cb) ->
     @a.push =>
-      (!!arguments[0] and
-        (@error_callback.apply @_next(!@error_callback.length), arguments)) or
-        (@success_callback.apply @_next(!@success_callback.length), arguments)
+      if arguments[0]
+        @error_callback.apply @_next(!@error_callback.length), arguments
+      else
+        @success_callback.apply @_next(!@success_callback.length), arguments
       cb.apply {}, arguments
     @a.reverse() # 6-10x faster to push/pop than shift
     # initialize callbacks

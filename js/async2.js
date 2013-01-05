@@ -9,7 +9,11 @@
   var A, _callback, _static;
   A = function async(beginning_result) {
     if (typeof this.serial === 'undefined') {
-      return new A(arguments[0]);
+      var a = new A(), k;
+      for (k in arguments[0]) {
+        a[k](arguments[0][k]);
+      }
+      return a;
     }
     this.a = [];
     this.beginning_result = beginning_result
@@ -58,7 +62,11 @@
   A.prototype.end = A.prototype["finally"] = A.prototype.ensure = A.prototype.afterAll = A.prototype.after = A.prototype.complete = A.prototype.done = A.prototype.go = function(cb) {
     var _this = this;
     this.a.push(function() {
-      (!!arguments[0] && (_this.error_callback.apply(_this._next(!_this.error_callback.length), arguments))) || (_this.success_callback.apply(_this._next(!_this.success_callback.length), arguments));
+      if (arguments[0]) {
+        _this.error_callback.apply(_this._next(!_this.error_callback.length), arguments);
+      } else {
+        _this.success_callback.apply(_this._next(!_this.success_callback.length), arguments);
+      }
       return cb.apply({}, arguments);
     });
     this.a.reverse();
