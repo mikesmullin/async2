@@ -101,7 +101,7 @@ flow.go (err, results...) ->
 
 It really makes you wonder: how long have you needed a good flow control library, and not known it?
 
-Look familiar to any jQuery.ajax() developers?
+Exhibit A: Look familiar to any jQuery.ajax() developers?
 
 ```coffeescript
 called = false
@@ -126,7 +126,7 @@ async
     done()
 ```
 
-How about to you JavaScript developers?
+Exhibit B: How about to you JavaScript developers?
 
 ```coffeescript
 called = false
@@ -145,7 +145,7 @@ async
     done()
 ```
 
-Any Rubists in the audience?
+Exhibit C: Any Rubists in the audience?
 
 ```coffeescript
 called = false
