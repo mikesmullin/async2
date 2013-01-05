@@ -79,7 +79,7 @@ async
   )
   .end (err, results...) ->
     assert.equal err, null
-    assert.deepEqual s, [ 1, 2, 3, 4, 5, 6 ]
+    assert.deepEqual results, [ 1, 2, 3, 4, 5, 6 ]
     done()
 ```
 
