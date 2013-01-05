@@ -201,7 +201,7 @@ describe 'async2', ->
         assert.deepEqual result, score: 11
         done()
 
-  it 'much easier to use within for ... loops than tranditional async.js', (done) ->
+  it 'is MUCH easier to use within loops', (done) ->
     delay = (s,f) -> setTimeout f, s
     flow = new async
     for i in [1..10]
