@@ -38,13 +38,145 @@ libraries.
 
 ### Then, observe in action:
 
+Backward-compatible with async.js:
+
 ```coffeescript
-async('pretend/path/to/file') # accepts initial input passed via waterfall to serial
-  .serial(fs.readFile) # block until data is read
-  .parallel [ tweet, fbook, gplus ], # push data to 3 services simultaneously
-    (err, data) -> # execute once all above is complete
-      #done()
+async.series [
+ -> delay 100, @
+ -> delay 50, @
+], ->
+  assert.closeTo 100+50, since(start), 25
+
+  async.parallel [
+   -> delay 100, @
+   -> delay 50, @
+  ], ->
+    assert.closeTo (100+50)+100, since(start), 25
+    done()
 ```
+
+But better:
+
+```coffeescript
+async
+  .serial((next) ->
+    assert.typeOf next, 'function'
+    next()
+  )
+  .serial((next) ->
+    assert.typeOf next, 'function'
+    next null, 1
+  )
+  .serial((a, next) ->
+    assert.equal a, 1
+    assert.typeOf next, 'function'
+    next null, 1, 2
+  )
+  .serial((a, b, next) ->
+    assert.equal a, 1
+    assert.equal b, 2
+    assert.typeOf next, 'function'
+    next null, 1, 2, 3, 4, 5, 6
+  )
+  .serial((results..., next) ->
+    assert.deepEqual s, [ 1, 2, 3, 4, 5, 6 ]
+    assert.typeOf next, 'function'
+    next null, results
+  )
+  .end (err, results...) ->
+    assert.equal err, null
+    assert.deepEqual s, [ 1, 2, 3, 4, 5, 6 ]
+    done()
+```
+
+In fact, way better, for more reasons than one:
+
+```coffeescript
+delay = (s,f) -> setTimeout f, s
+flow = new async
+for i in [1..10]
+  ((i) ->
+    method = if i%3 then 'parallel' else 'serial' # an overcomplicated display of flexibility
+    flow[method] (next) ->
+      delay 25, ->
+        console.log "#{method} #{i}"
+        next()
+  )(i)
+flow.go (err, results...) ->
+  console.log 'try this in async.js!'
+  done()
+```
+
+It really makes you wonder, how long have you been needing a good flow control library, and not known it?
+
+Look familiar to any jQuery.ajax() developers?
+
+```coffeescript
+called = false
+async
+  before: ->
+    #loading.show()
+    called = true
+  do: (next) ->
+    # main logic
+    assert.ok called
+    next 'err', 'result'
+  error: (err) ->
+    assert.equal 'err', 'err'
+    #alert err
+  success: (result) ->
+    assert false, 'success() should not have been called here'
+    #console.log data
+  complete: (err, result) ->
+    assert.equal err, 'err'
+    assert.equal result, 'result'
+    #loading.hide()
+    done()
+```
+
+How about to you JavaScript developers?
+
+```coffeescript
+called = false
+async
+  .try(->
+    @ new Error 'thrown node cb style'
+  )
+  .catch((err) ->
+    called = true
+    assert.equal ''+err, 'Error: thrown node cb style'
+  )
+  .finally (err, result) ->
+    assert.ok called
+    assert.equal ''+err, 'Error: thrown node cb style'
+    assert.typeOf result, 'undefined'
+    done()
+```
+
+Any Rubists in the audience?
+
+```coffeescript
+called = false
+async
+  .begin(->
+    @ new Error 'thrown node cb style'
+  )
+  .rescue((err) ->
+    called = true
+    assert.equal ''+err, 'Error: thrown node cb style'
+  )
+  .else((result) ->
+    console.log 'Else'
+    assert false, 'else() should not have been called here'
+  )
+  .ensure (err, result) ->
+    assert.ok called
+    assert.equal ''+err, 'Error: thrown node cb style'
+    assert.typeOf result, 'undefined'
+    done()
+```
+
+These are just a few things it can do.
 
 For the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/async2/blob/stable/test/test.coffee).
 

@@ -73,14 +73,19 @@ describe 'async2', ->
         assert.equal result, 'async.js is silly. pass it on. hehe. ok maybe its not too silly.'
         done()
 
-  it 'accepts enumerable objects as task input, executing immediately', (done) ->
-    # legacy async.js backward compatibility
+  it 'backward-compatible with async.js; series() and parallel() accept enumerable objects, executing immediately', (done) ->
     async.series [
      -> delay 100, @
      -> delay 50, @
     ], ->
       assert.closeTo 100+50, since(start), 25
-      done()
+
+      async.parallel [
+       -> delay 100, @
+       -> delay 50, @
+      ], ->
+        assert.closeTo (100+50)+100, since(start), 25
+        done()
 
   it 'follows node (results..., cb) and (err, results..., cb) conventions', (done) ->
     fs =
@@ -198,7 +203,7 @@ describe 'async2', ->
             #console.log "#{method} #{i}"
             next()
       )(i)
-    flow.done (err, results...) ->
+    flow.go (err, results...) ->
       #console.log 'try this in async.js!'
       done()
 
@@ -273,44 +278,3 @@ describe 'async2', ->
 
   it 'can do immediate serial execution push(f)'
   it 'can do grouped immediate serial execution push("name", f)'
-
-
-  #### everything but the kitchen sink example
-  #```coffeescript
-  #b = undefined # global scope
-  #a = async
-  #  a.series((result, err) ->
-  #    setTimeout (=>
-  #      doSomething()
-  #      @ result, err # `this` object is the done() function
-  #    ), 1000)
-  #  .parallel(-> "chaining with (result, err) is normal but sometimes you don't care." )
-  #  .parallel((result, err) -> sometimesYourDelegatesImplementForYou @, result, err )
-  #  .series(-> sometimesDelegatesOnlyReturnAResult @ )
-  #  .series((result) -> result['unique'] = "end could receive results merged inside the chain"; @ result )
-  #  .parallel(-> "parallel calling the done() callback is still required. sry"; @() )
-  #  .parallel(-> b = "you could also pass results via the global scope"; @() )
-  #  .inbetween((result, err) -> console.log "processing... #{a.processed} of #{a.beginning_length} or #{a.processed / a.beginning_length * 100}% complete")
-  #  .rescue((err) -> console.log "An error occurred: #{err}")
-  #  .success((result) -> console.log "The results are in: #{result}")
-  #  .end (result, err) ->
-  #    console.log "The wait is over.")
-  #```
-
-  #it 'can do everything', (done) ->
-  #  console.log 'starting serial/parallel example... should be a A b c d e f D F g h G success end'
-  #  a = async.begin()
-  #  a.serial((result, err) -> Debugger.log ['0 a', @, result, err]; delay 1000, => Debugger.log ['0 A', @, result, err]; @ 1, err)
-  #    .serial((result, err) -> Debugger.log ['1 b', @, result, err]; @ 2, err)
-  #    .parallel((result, err) -> Debugger.log ['2 c', @, result, err]; @ 3, err)
-  #    .parallel((result, err) -> Debugger.log ['3 d', @, result, err]; delay 1000, => Debugger.log ['3 D', @, result, err]; @ 4, err)
-  #    .serial((result, err) -> Debugger.log ['4 e', @, result, err]; @ 5, err)
-  #    .serial((result, err) -> Debugger.log ['5 f', @, result, err]; delay 1000, => Debugger.log ['5 F', @, result, err]; @ 6, err)
-  #    .parallel((result, err) -> Debugger.log ['6 g', @, result, err]; delay 1000, => Debugger.log ['6 G', @, result, err]; @ 7, err)
-  #    .parallel((result, err) -> Debugger.log ['7 h', @, result, err]; @ 8, err)
-  #    .inbetween((result, err) -> Debugger.log ["processing... #{a.processed} of #{a.beginning_length} or #{a.processed / a.beginning_length * 100}% complete", result, err])
-  #    .rescue((err) -> Debugger.log ['rescue', err])
-  #    .success((result) -> Debugger.log ['success', result])
-  #    .end (result, err) ->
-  #      Debugger.log ['8 end', @, result, err]
-  #      done()
