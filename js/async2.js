@@ -12,9 +12,7 @@
       return new A(arguments[0]);
     }
     this.a = [];
-    console.log("constructor called with arguments:\n  ");
-    console.log(JSON.stringify(arguments));
-    this.begin(beginning_result);
+    this.beginning_result = beginning_result
     this.beginning_length = 0;
     this.processed = 0;
   };;
@@ -30,7 +28,6 @@
       if (arguments[0]) {
         return _this._apply(arguments);
       }
-      console.log(arguments);
       _this.afterEach_callback.apply(_this._next(!_this.afterEach_callback.length), arguments);
       if (!parallel || _this.processed === _this.beginning_length) {
         while (_this._apply(arguments) && parallel) {}
@@ -67,13 +64,7 @@
     this.a.reverse();
     (this.begin_callback = this.begin_callback || function() {}) && (this.beforeAll_callback = this.beforeAll_callback || function() {}) && (this.beforeEach_callback = this.beforeEach_callback || function() {}) && (this.afterEach_callback = this.afterEach_callback || function() {}) && (this.error_callback = this.error_callback || function() {}) && (this.success_callback = this.success_callback || function() {});
     this.beforeAll_callback.apply(this._next(!this.beforeAll_callback.length), arguments);
-    if ((typeof this.beginning_result)[0] === 'u') {
-      console.log("end()ing with no beginning result");
-      this._apply([null]);
-    } else {
-      console.log("end()ing  with " + (JSON.stringify(this.beginning_result)));
-      this._apply([null, this.beginning_result]);
-    }
+    this._apply((typeof this.beginning_result)[0] === 'u' ? [null] : [null, this.beginning_result]);
     return this;
   };
   A.prototype.serial = A.prototype.series = A.prototype.blocking = A.prototype.waterfall = function() {
@@ -85,15 +76,8 @@
   A.prototype["do"] = A.prototype.then = A.prototype.auto = function() {
     return this._push(arguments, null);
   };
-  A.start = A.begin = A["try"] = A["new"] = A.flow = function(b) {
-    console.log("static new() called with arguments:\n  ", arguments);
-    return new A(b);
-  };
   A.prototype.start = A.prototype.begin = A.prototype["try"] = A.prototype["new"] = A.prototype.flow = function(b) {
-    console.log("instantiated new() called with arguments:\n  ", arguments);
     this.beginning_result = b;
-    console.log("Beginning result is now: " + JSON.stringify(this.beginning_result));
-    console.log('=======================');
     return this;
   };
   (_callback = function(func) {
@@ -105,10 +89,9 @@
   (_static = function(func) {
     return function() {
       var b;
-      console.log("static func " + func + " called with arguments:\n  ", arguments);
-      return (b = A["new"]())[func].apply(b, arguments);
+      return (b = new A)[func].apply(b, arguments);
     };
-  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
+  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A.start = A.begin = A["try"] = A["new"] = A.flow = _static('begin')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
   A.whilst = function(test, iterator, cb) {
     var _this = this;
     (test() && iterator(function(err) {

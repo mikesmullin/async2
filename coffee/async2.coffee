@@ -12,9 +12,7 @@ not ((context, definition) ->
       return new A(arguments[0]);
     }
     this.a = [];
-    console.log("constructor called with arguments:\n  ");
-    console.log(JSON.stringify(arguments));
-    this.begin(beginning_result);
+    this.beginning_result = beginning_result
     this.beginning_length = 0;
     this.processed = 0;
   };`
@@ -28,7 +26,6 @@ not ((context, definition) ->
     =>
       @processed++
       return @_apply arguments if arguments[0] # err
-      console.log arguments
       @afterEach_callback.apply @_next(!@afterEach_callback.length), arguments
       if not parallel or @processed is @beginning_length
         while(@_apply(arguments) and parallel)
@@ -66,13 +63,7 @@ not ((context, definition) ->
       (@error_callback = @error_callback or ->) and
       (@success_callback = @success_callback or ->)
     @beforeAll_callback.apply @_next(!@beforeAll_callback.length), arguments
-    if (typeof @beginning_result)[0] is 'u'
-      console.log "end()ing with no beginning result"
-      @_apply [ null ]
-    else
-      console.log "end()ing  with #{JSON.stringify @beginning_result}"
-      @_apply [ null, @beginning_result ]
-    #@_apply if (typeof @beginning_result)[0] is 'u' then [ null ] else [ null, @beginning_result ]
+    @_apply if (typeof @beginning_result)[0] is 'u' then [ null ] else [ null, @beginning_result ]
     return @
 
   A::serial = A::series = A::blocking = A::waterfall = ->
@@ -84,14 +75,8 @@ not ((context, definition) ->
   A::do = A::then = A::auto = ->
     @_push arguments, null
 
-  A.start = A.begin = A.try = A.new = A.flow = (b) ->
-    console.log "static new() called with arguments:\n  ", arguments
-    new A(b)
   A::start = A::begin = A::try = A::new = A::flow = (b) ->
-    console.log "instantiated new() called with arguments:\n  ", arguments
     @beginning_result = b
-    console.log("Beginning result is now: "+JSON.stringify(@beginning_result))
-    console.log '======================='
     @
 
   # public instance methods for callback functions
@@ -108,13 +93,12 @@ not ((context, definition) ->
   # automatically instantiate a new async instance
   # and forward arguments to their corresponding public instance method above
   (_static = (func) -> ->
-    console.log "static func #{func} called with arguments:\n  ", arguments
-    (b = A.new())[func].apply b, arguments) and
+    (b = new A)[func].apply b, arguments) and
     (A.serial = A.series = A.blocking = A.waterfall = _static 'serial') and
     (A.parallel = A.nonblocking = _static 'parallel') and
     (A.do = A.then = A.auto = _static 'do') and
     (A.end = A.finally = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static 'end') and
-    #(A.start = A.begin = A.try = A.new = A.flow = _static 'begin') and
+    (A.start = A.begin = A.try = A.new = A.flow = _static 'begin') and
     (A.beforeAll = A.before = _static 'beforeAll') and
     (A.beforeEach = _static 'beforeEach') and
     (A.afterEach = A.between = A.inbetween = _static 'afterEach') and

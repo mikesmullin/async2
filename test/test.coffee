@@ -173,16 +173,9 @@ describe 'async2', ->
         assert.deepEqual results, [ 1, 2, 3, 4, 5, 6 ]
         done()
 
-  it 'receives beginning result within optional chainable instantiator', (done) ->
-    console.log '----------'
-    a = async.start(score: 1)
-    console.log '----------'
-    console.log typeof a
-    console.log JSON.stringify a
-    a
+  it 'receives beginning result within constructor', (done) ->
+    async(score: 1)
       .serial((result, next) ->
-        console.log "received arguments 1"
-        console.log arguments
         assert.deepEqual result, score: 1
         assert.typeOf next, 'function'
         result.score += 10
@@ -190,8 +183,20 @@ describe 'async2', ->
         next null, result
       )
       .end (err, result) ->
-        console.log "received arguments 2"
-        console.log arguments
+        assert.equal err, null
+        assert.deepEqual result, score: 11
+        done()
+
+  it 'receives beginning result within optional chainable instantiator', (done) ->
+    async.start(score: 1)
+      .serial((result, next) ->
+        assert.deepEqual result, score: 1
+        assert.typeOf next, 'function'
+        result.score += 10
+        assert.equal result.score, 11
+        next null, result
+      )
+      .end (err, result) ->
         assert.equal err, null
         assert.deepEqual result, score: 11
         done()
