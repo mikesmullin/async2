@@ -81,7 +81,7 @@ describe 'async2', ->
       assert.closeTo 100+50, since(start), 25
       done()
 
-  it 'follows node (result.., cb) and (err, result..., cb) conventions', (done) ->
+  it 'follows node (results..., cb) and (err, results..., cb) conventions', (done) ->
     fs =
       readFile: (path, done) ->
         delay 20, -> done null, "tons o' data from #{path}."

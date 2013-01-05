@@ -10,7 +10,7 @@ not ((context, definition) ->
       return new a(arguments[0]);
     }
     this.a = [];
-    this.beginning_result = beginning_result || {};
+    this.beginning_result = beginning_result;
     this.beginning_length = 0;
     this.processed = 0;
   };`
@@ -18,19 +18,19 @@ not ((context, definition) ->
   # private instance methods
   a::_apply = (args) ->
     if @a.length
-      (if args[0] then @a.splice(0, @a.length).shift() else @a[@a.length-1]).apply (->), args
+      (if args[0] then @a.splice(0, @a.length).shift() else @a[@a.length-1]).apply {}, args
 
   a::_next = (parallel) ->
     =>
       @processed++
       return @_apply arguments if arguments[0] # err
+      console.log arguments
       @afterEach_callback.apply @_next(!@afterEach_callback.length), arguments
       if not parallel or @processed is @beginning_length
         while(@_apply(arguments) and parallel)
           ;
       return
 
-  # public instance methods
   a::_push = (args, parallel) ->
     task = args[0]
     '[object Function]' is Object::toString.call(task) and dont_end = task = [task]
@@ -46,6 +46,25 @@ not ((context, definition) ->
       )(task[key], if parallel is null then not task[key].length else parallel)
     return (if dont_end then @ else @end(if typeof args[1] is 'function' then args[1] else ->))
 
+  # public instance methods
+  a::end = a::finally = a::ensure = a::afterAll = a::after = a::complete = a::done = (cb) ->
+    @a.push =>
+      (!!arguments[0] and
+        (@error_callback.apply @_next(!@error_callback.length), arguments)) or
+        (@success_callback.apply @_next(!@success_callback.length), arguments)
+      cb.apply {}, arguments
+    @a.reverse() # 6-10x faster to push/pop than shift
+    # initialize callbacks
+    (@begin_callback = @begin_callback or ->) and
+      (@beforeAll_callback = @beforeAll_callback or ->) and
+      (@beforeEach_callback = @beforeEach_callback or ->) and
+      (@afterEach_callback = @afterEach_callback or ->) and
+      (@error_callback = @error_callback or ->) and
+      (@success_callback = @success_callback or ->)
+    @beforeAll_callback.apply @_next(!@beforeAll_callback.length), arguments
+    @_apply if (typeof @beginning_result)[0] is 'u' then [ null ] else [ null, @beginning_result ]
+    return @
+
   a::serial = a::series = a::blocking = a::waterfall = ->
     @_push arguments, false
 
@@ -54,24 +73,6 @@ not ((context, definition) ->
 
   a::do = a::then = a::auto = ->
     @_push arguments, null
-
-  a::end = a::finally = a::ensure = a::afterAll = a::after = a::complete = a::done = (cb) ->
-    @a.push =>
-      (!!arguments[0] and
-        (@error_callback.apply @_next(!@error_callback.length), arguments)) or
-        (@success_callback.apply @_next(!@success_callback.length), arguments)
-      cb.apply (->), arguments
-    @a.reverse() # 6-10x faster to push/pop than shift
-    # initialize callbacks
-    (@begin_callback = @begin_callback or (->)) and
-      (@beforeAll_callback = @beforeAll_callback or (->)) and
-      (@beforeEach_callback = @beforeEach_callback or (->)) and
-      (@afterEach_callback = @afterEach_callback or (->)) and
-      (@error_callback = @error_callback or (->)) and
-      (@success_callback = @success_callback or (->))
-    @beforeAll_callback.apply @_next(!@beforeAll_callback.length), arguments
-    @_apply [null, @beginning_result]
-    return @
 
   # public instance methods for callback functions
   (_callback = (func) -> (cb) ->
