@@ -276,5 +276,5 @@ describe 'async2', ->
         assert.typeOf result, 'undefined'
         done()
 
-  it 'can do immediate serial execution push(f)'
+  it 'can do immediate serial execution push(f)' # same as nextTick(). remove
   it 'can do grouped immediate serial execution push("name", f)'
