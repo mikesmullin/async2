@@ -275,22 +275,45 @@ describe 'async2', ->
         assert.typeOf result, 'undefined'
         done()
 
-  it 'WIP can do group-queued automatic serial execution with push("group_name", f)', ->
+  it 'WIP can do group-queued automatic serial execution with push("group_name", f)', (done) ->
     # similar to nextTick() or setTimeout(->, 0), but grouped
     out = ''
     debug = (m,s,cb) ->
+      console.log "debug() called with ", m, s
       async.delay s, ->
         out += m
+        console.log "my delay() called with #{m}. out is now: #{out}"
         cb null
 
-    # push is always serial
-    async.push 'Z', ->
+    Z = new async
+    X = new async
+    Z.serial ->
       debug 'a', 100, @
-    async.push 'X', ->
+    X.serial ->
       debug 'b', 50, @
-    async.push 'Z', ->
+    Z.serial ->
       debug 'c', 300, @
-    async.push 'X', ->
+    X.serial ->
       debug 'd', 30, @
+    Z.go()
+    X.go()
+    async.delay 100+50+300+30+25, ->
+      assert.equal 'bdac', out
+      console.log 'done'
+      out = ''
 
-    assert.equal 'dbac', out
+      # push is always serial
+      # above 12 lines do same as below 8
+      # TODO: make it push aka nextTickGroup
+      async.push 'Z', ->
+        debug 'a', 100, @
+      async.push 'X', ->
+        debug 'b', 50, @
+      async.push 'Z', ->
+        debug 'c', 300, @
+      async.push 'X', ->
+        debug 'd', 30, @
+
+      async.delay 100+50+300+30+25, ->
+        assert.equal 'bdac', out
+        done()
