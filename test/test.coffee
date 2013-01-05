@@ -307,13 +307,13 @@ describe 'async2', ->
       # will be ignored unless there are actually some functions enqueued
       # and it is not already processing.
       async
-        .push 'Z', ->
+        .nextTickGroup 'Z', ->
           debug 'a', 100, @
         .push 'X', ->
           debug 'b', 50, @
         .push 'Z', ->
           debug 'c', 300, @
-        .push 'X', ->
+        .nextTickGroup 'X', ->
           debug 'd', 30, @
 
       async.delay 100+50+300+30+25, ->
