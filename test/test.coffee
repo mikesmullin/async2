@@ -202,9 +202,6 @@ describe 'async2', ->
       #console.log 'try this in async.js!'
       done()
 
-  it 'can do immediate serial execution push(f)'
-  it 'can do grouped immediate serial execution push("name", f)'
-
   it 'can waterfall serial results to parallel functions in the same flow', (done) ->
     tweet = fbook = gplus = (data, cb) -> # mock async broadcast fns
       assert.equal 'asynchronous data', data
@@ -238,15 +235,30 @@ describe 'async2', ->
         #loading.hide()
         done()
 
-  ## similar to javascript try/catch/finally exception handling
-  ## also works with begin/rescue/else/ensure
-  #async.try()
-  #  .series((done) -> salmon done)
-  #  .series((done) -> catfish done)
-  #  .catch((e) -> console.log "something fishy: #{err}")
-  #  .finally ->
-  #    console.log 'ready to eat!'
-  #```
+  it 'can be written similarly to javascript try/catch/finally exception handling', (done) ->
+    called = false
+    async
+      .try(->
+        console.log "Try"
+        @ new Error 'thrown node cb style'
+      )
+      .catch((err) ->
+        console.log "Catch"
+        called = true
+        assert.equal ''+err, 'Error: thrown node cb style'
+      )
+      .finally (err, result) ->
+        console.log "Finally"
+        assert.ok called
+        assert.equal ''+err, 'Error: thrown node cb style'
+        assert.typeOf result, 'undefined'
+        done()
+
+  it 'can be written similarly to ruby begin/rescue/else/ensure/end exception handling'
+
+  it 'can do immediate serial execution push(f)'
+  it 'can do grouped immediate serial execution push("name", f)'
+
 
   #### everything but the kitchen sink example
   #```coffeescript
