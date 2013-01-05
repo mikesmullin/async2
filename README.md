@@ -101,7 +101,7 @@ flow.go (err, results...) ->
   done()
 ```
 
-It really makes you wonder, how long have you been needing a good flow control library, and not known it?
+It really makes you wonder: how long have you needed a good flow control library, and not known it?
 
 Look familiar to any jQuery.ajax() developers?
 
