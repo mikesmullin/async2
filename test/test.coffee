@@ -239,16 +239,13 @@ describe 'async2', ->
     called = false
     async
       .try(->
-        console.log "Try"
         @ new Error 'thrown node cb style'
       )
       .catch((err) ->
-        console.log "Catch"
         called = true
         assert.equal ''+err, 'Error: thrown node cb style'
       )
       .finally (err, result) ->
-        console.log "Finally"
         assert.ok called
         assert.equal ''+err, 'Error: thrown node cb style'
         assert.typeOf result, 'undefined'
