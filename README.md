@@ -99,7 +99,7 @@ flow.go (err, results...) ->
   done()
 ```
 
-It really makes you wonder: how long have you needed a good flow control library, and not known it?
+It really makes you wonder: how long have we needed a good asynchronous flow control library, and not known it?
 
 Exhibit A: Look familiar to any jQuery.ajax() developers?
 
@@ -176,6 +176,8 @@ Or try it immediately in your browser with [codepen](http://codepen.io/mikesmull
 
 TODO
 ----
+
+* i could name variables better to assist with minification but its already pretty small. i may do it later though.
 
 * potential node.js madness: each series becomes its own cpu thread, each parallel becomes its own gpu thread.
 
