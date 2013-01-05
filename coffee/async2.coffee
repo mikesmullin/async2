@@ -5,22 +5,26 @@ not ((context, definition) ->
   return context['async'] = definition
 )(this, (->
   # constructor
-  a = `function async(beginning_result) {
+  # the if statement in here is for the one case where
+  # async can be instantiated by just calling async()
+  A = `function async(beginning_result) {
     if (typeof this.serial === 'undefined') {
-      return new a(arguments[0]);
+      return new A(arguments[0]);
     }
     this.a = [];
-    this.beginning_result = beginning_result;
+    console.log("constructor called with arguments:\n  ");
+    console.log(JSON.stringify(arguments));
+    this.begin(beginning_result);
     this.beginning_length = 0;
     this.processed = 0;
   };`
 
   # private instance methods
-  a::_apply = (args) ->
+  A::_apply = (args) ->
     if @a.length
       (if args[0] then @a.splice(0, @a.length).shift() else @a[@a.length-1]).apply {}, args
 
-  a::_next = (parallel) ->
+  A::_next = (parallel) ->
     =>
       @processed++
       return @_apply arguments if arguments[0] # err
@@ -31,7 +35,7 @@ not ((context, definition) ->
           ;
       return
 
-  a::_push = (args, parallel) ->
+  A::_push = (args, parallel) ->
     task = args[0]
     '[object Function]' is Object::toString.call(task) and dont_end = task = [task]
     for key of task
@@ -47,7 +51,7 @@ not ((context, definition) ->
     return (if dont_end then @ else @end(if typeof args[1] is 'function' then args[1] else ->))
 
   # public instance methods
-  a::end = a::finally = a::ensure = a::afterAll = a::after = a::complete = a::done = (cb) ->
+  A::end = A::finally = A::ensure = A::afterAll = A::after = A::complete = A::done = A::go = (cb) ->
     @a.push =>
       (!!arguments[0] and
         (@error_callback.apply @_next(!@error_callback.length), arguments)) or
@@ -62,47 +66,63 @@ not ((context, definition) ->
       (@error_callback = @error_callback or ->) and
       (@success_callback = @success_callback or ->)
     @beforeAll_callback.apply @_next(!@beforeAll_callback.length), arguments
-    @_apply if (typeof @beginning_result)[0] is 'u' then [ null ] else [ null, @beginning_result ]
+    if (typeof @beginning_result)[0] is 'u'
+      console.log "end()ing with no beginning result"
+      @_apply [ null ]
+    else
+      console.log "end()ing  with #{JSON.stringify @beginning_result}"
+      @_apply [ null, @beginning_result ]
+    #@_apply if (typeof @beginning_result)[0] is 'u' then [ null ] else [ null, @beginning_result ]
     return @
 
-  a::serial = a::series = a::blocking = a::waterfall = ->
+  A::serial = A::series = A::blocking = A::waterfall = ->
     @_push arguments, false
 
-  a::parallel = a::nonblocking = ->
+  A::parallel = A::nonblocking = ->
     @_push arguments, true
 
-  a::do = a::then = a::auto = ->
+  A::do = A::then = A::auto = ->
     @_push arguments, null
+
+  A.start = A.begin = A.try = A.new = A.flow = (b) ->
+    console.log "static new() called with arguments:\n  ", arguments
+    new A(b)
+  A::start = A::begin = A::try = A::new = A::flow = (b) ->
+    console.log "instantiated new() called with arguments:\n  ", arguments
+    @beginning_result = b
+    console.log("Beginning result is now: "+JSON.stringify(@beginning_result))
+    console.log '======================='
+    @
 
   # public instance methods for callback functions
   (_callback = (func) -> (cb) ->
     @[func + '_callback'] = cb
     @) and
-    (a::begin = a::try = a::new = a::flow = _callback 'begin') and
-    (a::beforeAll = a::before = _callback 'beforeAll') and
-    (a::beforeEach = _callback 'beforeEach') and
-    (a::afterEach = a::between = a::inbetween = _callback 'afterEach') and
-    (a::error = a::catch = a::rescue = _callback 'error') and
-    (a::success = a::else = _callback 'success')
+    (A::beforeAll = A::before = _callback 'beforeAll') and
+    (A::beforeEach = _callback 'beforeEach') and
+    (A::afterEach = A::between = A::inbetween = _callback 'afterEach') and
+    (A::error = A::catch = A::rescue = _callback 'error') and
+    (A::success = A::else = _callback 'success')
 
   # public static functions
   # automatically instantiate a new async instance
   # and forward arguments to their corresponding public instance method above
   (_static = (func) -> ->
-    (b = new a)[func].apply b, arguments) and
-    (a.serial = a.series = a.blocking = a.waterfall = _static 'serial') and
-    (a.parallel = a.nonblocking = _static 'parallel') and
-    (a.do = a.then = a.auto = _static 'do') and
-    (a.end = a.finally = a.ensure = a.afterAll = a.after = a.complete = a.done = _static 'end') and
-    (a.begin = a.try = a.new = a.flow = _static 'begin') and
-    (a.beforeAll = a.before = _static 'beforeAll') and
-    (a.beforeEach = _static 'beforeEach') and
-    (a.afterEach = a.between = a.inbetween = _static 'afterEach') and
-    (a.error = a.catch = a.rescue = _static 'error') and
-    (a.success = a.else = _static 'success')
+    console.log "static func #{func} called with arguments:\n  ", arguments
+    (b = A.new())[func].apply b, arguments) and
+    (A.serial = A.series = A.blocking = A.waterfall = _static 'serial') and
+    (A.parallel = A.nonblocking = _static 'parallel') and
+    (A.do = A.then = A.auto = _static 'do') and
+    (A.end = A.finally = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static 'end') and
+    #(A.start = A.begin = A.try = A.new = A.flow = _static 'begin') and
+    (A.beforeAll = A.before = _static 'beforeAll') and
+    (A.beforeEach = _static 'beforeEach') and
+    (A.afterEach = A.between = A.inbetween = _static 'afterEach') and
+    (A.error = A.catch = A.rescue = _static 'error') and
+    (A.success = A.else = _static 'success')
 
   # public static-only functions
-  a.whilst = (test, iterator, cb) ->
+  A.whilst = (test, iterator, cb) ->
     (test() and
       iterator (err) =>
         return (!!err and
@@ -112,5 +132,5 @@ not ((context, definition) ->
       cb()
     return
 
-  a
+  A
 )())

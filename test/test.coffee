@@ -1,5 +1,6 @@
 async = require '../coffee/async2'
 assert = require('chai').assert
+a = `undefined`
 
 describe 'async2', ->
   start = undefined
@@ -87,7 +88,10 @@ describe 'async2', ->
         delay 20, -> done null, "tons o' data from #{path}."
     tweet = fbook = gplus = (data, done) -> done null, data
     results = {}
-    async('pretend/path/to/file')
+    async()
+      .serial((next) ->
+        next null, 'pretend/path/to/file'
+      )
       .serial(fs.readFile)
       .parallel [ tweet, fbook, gplus ],
         (err, data) ->
@@ -129,7 +133,7 @@ describe 'async2', ->
         assert.typeOf next, 'function'
         done()
       )
-      .finally()
+      .go()
 
   it 'passes cb as last arg of predictable arg length to subsequent serial fns', (done) ->
     async.flow()
@@ -157,7 +161,7 @@ describe 'async2', ->
         assert.typeOf next, 'function'
         done()
       )
-      .finally()
+      .go()
 
   it 'passes err, results... arguments to finally() in a series', (done) ->
     async.flow()
@@ -167,6 +171,29 @@ describe 'async2', ->
       .finally (err, results...) ->
         assert.equal err, 'bad'
         assert.deepEqual results, [ 1, 2, 3, 4, 5, 6 ]
+        done()
+
+  it 'receives beginning result within optional chainable instantiator', (done) ->
+    console.log '----------'
+    a = async.start(score: 1)
+    console.log '----------'
+    console.log typeof a
+    console.log JSON.stringify a
+    a
+      .serial((result, next) ->
+        console.log "received arguments 1"
+        console.log arguments
+        assert.deepEqual result, score: 1
+        assert.typeOf next, 'function'
+        result.score += 10
+        assert.equal result.score, 11
+        next null, result
+      )
+      .end (err, result) ->
+        console.log "received arguments 2"
+        console.log arguments
+        assert.equal err, null
+        assert.deepEqual result, score: 11
         done()
 
   # it 'can do nextTick(f)' # why? node does it fine

@@ -12,16 +12,16 @@ libraries.
 
 ### Flow Control
 
-* [begin / try / new](#find-examples-in-the-tests) : chainable instantiation; not required but sometimes useful
+* [start / begin / try / new / flow](#find-examples-in-the-tests) : optional chainable instantiator; receives beginning result; useful in series
 * [beforeAll / before](#find-examples-in-the-tests) : non-blocking function called once before first task
 * [beforeEach](#find-examples-in-the-tests) : non-blocking function called once before each task
-* [serial / series / blocking / waterfall](#find-examples-in-the-tests) : blocking function called in order; results optionally waterfalled.
+* [serial / series / blocking / waterfall](#find-examples-in-the-tests) : blocking function called in order; results optionally waterfalled
 * [parallel / nonblocking](#find-examples-in-the-tests) : non-blocking function called in order
 * [do / then / auto](#find-examples-in-the-tests) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#find-examples-in-the-tests) : non-blocking function called once after each task
 * [error / catch / rescue](#find-examples-in-the-tests) : blocking function called when error occurs
 * [success / else](#find-examples-in-the-tests) : non-blocking function called after all tasks have completed, but only if no errors occur
-* [end / finally / ensure / afterAll / after / complete / done](#find-examples-in-the-tests) : blocking function called after all tasks have completed
+* [end / finally / ensure / afterAll / after / complete / done / go](#find-examples-in-the-tests) : blocking function called after all tasks have completed
 * [whilst](#find-examples-in-the-tests) : provide test, iterator, and callback functions. will iterate until test passes, then execute callback
 
 ## Quick Examples

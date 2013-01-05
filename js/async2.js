@@ -6,22 +6,24 @@
   }
   return context['async'] = definition;
 })(this, (function() {
-  var a, _callback, _static;
-  a = function async(beginning_result) {
+  var A, _callback, _static;
+  A = function async(beginning_result) {
     if (typeof this.serial === 'undefined') {
-      return new a(arguments[0]);
+      return new A(arguments[0]);
     }
     this.a = [];
-    this.beginning_result = beginning_result;
+    console.log("constructor called with arguments:\n  ");
+    console.log(JSON.stringify(arguments));
+    this.begin(beginning_result);
     this.beginning_length = 0;
     this.processed = 0;
   };;
-  a.prototype._apply = function(args) {
+  A.prototype._apply = function(args) {
     if (this.a.length) {
       return (args[0] ? this.a.splice(0, this.a.length).shift() : this.a[this.a.length - 1]).apply({}, args);
     }
   };
-  a.prototype._next = function(parallel) {
+  A.prototype._next = function(parallel) {
     var _this = this;
     return function() {
       _this.processed++;
@@ -35,7 +37,7 @@
       }
     };
   };
-  a.prototype._push = function(args, parallel) {
+  A.prototype._push = function(args, parallel) {
     var dont_end, key, task, _fn,
       _this = this;
     task = args[0];
@@ -56,7 +58,7 @@
     }
     return (dont_end ? this : this.end(typeof args[1] === 'function' ? args[1] : function() {}));
   };
-  a.prototype.end = a.prototype["finally"] = a.prototype.ensure = a.prototype.afterAll = a.prototype.after = a.prototype.complete = a.prototype.done = function(cb) {
+  A.prototype.end = A.prototype["finally"] = A.prototype.ensure = A.prototype.afterAll = A.prototype.after = A.prototype.complete = A.prototype.done = A.prototype.go = function(cb) {
     var _this = this;
     this.a.push(function() {
       (!!arguments[0] && (_this.error_callback.apply(_this._next(!_this.error_callback.length), arguments))) || (_this.success_callback.apply(_this._next(!_this.success_callback.length), arguments));
@@ -65,35 +67,53 @@
     this.a.reverse();
     (this.begin_callback = this.begin_callback || function() {}) && (this.beforeAll_callback = this.beforeAll_callback || function() {}) && (this.beforeEach_callback = this.beforeEach_callback || function() {}) && (this.afterEach_callback = this.afterEach_callback || function() {}) && (this.error_callback = this.error_callback || function() {}) && (this.success_callback = this.success_callback || function() {});
     this.beforeAll_callback.apply(this._next(!this.beforeAll_callback.length), arguments);
-    this._apply((typeof this.beginning_result)[0] === 'u' ? [null] : [null, this.beginning_result]);
+    if ((typeof this.beginning_result)[0] === 'u') {
+      console.log("end()ing with no beginning result");
+      this._apply([null]);
+    } else {
+      console.log("end()ing  with " + (JSON.stringify(this.beginning_result)));
+      this._apply([null, this.beginning_result]);
+    }
     return this;
   };
-  a.prototype.serial = a.prototype.series = a.prototype.blocking = a.prototype.waterfall = function() {
+  A.prototype.serial = A.prototype.series = A.prototype.blocking = A.prototype.waterfall = function() {
     return this._push(arguments, false);
   };
-  a.prototype.parallel = a.prototype.nonblocking = function() {
+  A.prototype.parallel = A.prototype.nonblocking = function() {
     return this._push(arguments, true);
   };
-  a.prototype["do"] = a.prototype.then = a.prototype.auto = function() {
+  A.prototype["do"] = A.prototype.then = A.prototype.auto = function() {
     return this._push(arguments, null);
+  };
+  A.start = A.begin = A["try"] = A["new"] = A.flow = function(b) {
+    console.log("static new() called with arguments:\n  ", arguments);
+    return new A(b);
+  };
+  A.prototype.start = A.prototype.begin = A.prototype["try"] = A.prototype["new"] = A.prototype.flow = function(b) {
+    console.log("instantiated new() called with arguments:\n  ", arguments);
+    this.beginning_result = b;
+    console.log("Beginning result is now: " + JSON.stringify(this.beginning_result));
+    console.log('=======================');
+    return this;
   };
   (_callback = function(func) {
     return function(cb) {
       this[func + '_callback'] = cb;
       return this;
     };
-  }) && (a.prototype.begin = a.prototype["try"] = a.prototype["new"] = a.prototype.flow = _callback('begin')) && (a.prototype.beforeAll = a.prototype.before = _callback('beforeAll')) && (a.prototype.beforeEach = _callback('beforeEach')) && (a.prototype.afterEach = a.prototype.between = a.prototype.inbetween = _callback('afterEach')) && (a.prototype.error = a.prototype["catch"] = a.prototype.rescue = _callback('error')) && (a.prototype.success = a.prototype["else"] = _callback('success'));
+  }) && (A.prototype.beforeAll = A.prototype.before = _callback('beforeAll')) && (A.prototype.beforeEach = _callback('beforeEach')) && (A.prototype.afterEach = A.prototype.between = A.prototype.inbetween = _callback('afterEach')) && (A.prototype.error = A.prototype["catch"] = A.prototype.rescue = _callback('error')) && (A.prototype.success = A.prototype["else"] = _callback('success'));
   (_static = function(func) {
     return function() {
       var b;
-      return (b = new a)[func].apply(b, arguments);
+      console.log("static func " + func + " called with arguments:\n  ", arguments);
+      return (b = A["new"]())[func].apply(b, arguments);
     };
-  }) && (a.serial = a.series = a.blocking = a.waterfall = _static('serial')) && (a.parallel = a.nonblocking = _static('parallel')) && (a["do"] = a.then = a.auto = _static('do')) && (a.end = a["finally"] = a.ensure = a.afterAll = a.after = a.complete = a.done = _static('end')) && (a.begin = a["try"] = a["new"] = a.flow = _static('begin')) && (a.beforeAll = a.before = _static('beforeAll')) && (a.beforeEach = _static('beforeEach')) && (a.afterEach = a.between = a.inbetween = _static('afterEach')) && (a.error = a["catch"] = a.rescue = _static('error')) && (a.success = a["else"] = _static('success'));
-  a.whilst = function(test, iterator, cb) {
+  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
+  A.whilst = function(test, iterator, cb) {
     var _this = this;
     (test() && iterator(function(err) {
       return (!!err && cb(err)) || _this.whilst(test, iterator, cb);
     })) || cb();
   };
-  return a;
+  return A;
 })());
