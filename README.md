@@ -64,12 +64,12 @@ async
     next null, 'async data' # e.g., fs.readFile(), or jQuery.ajax()
   )
   .parallel((data, next) ->
-    assert.equal a, 'async data'
+    assert.equal data, 'async data'
     assert.typeOf next, 'function'
     next null
   )
   .parallel((data, next) ->
-    assert.equal a, 'async data'
+    assert.equal data, 'async data'
     assert.typeOf next, 'function'
     next null
   )
