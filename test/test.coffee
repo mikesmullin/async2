@@ -285,12 +285,12 @@ describe 'async2', ->
 
     # push is always serial
     async.push 'Z', ->
-      debug 'a', 300, @
+      debug 'a', 100, @
     async.push 'X', ->
       debug 'b', 50, @
     async.push 'Z', ->
-      debug 'c', 100, @
+      debug 'c', 300, @
     async.push 'X', ->
       debug 'd', 30, @
 
-    assert.equal 'bdac', out
+    assert.equal 'dbac', out
