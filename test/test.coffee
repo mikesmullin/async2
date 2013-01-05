@@ -309,7 +309,7 @@ describe 'async2', ->
       async
         .nextTickGroup 'Z', ->
           debug 'a', 100, @
-        .push 'X', ->
+        .push 'X', -> # push is an alias; its the same thing
           debug 'b', 50, @
         .push 'Z', ->
           debug 'c', 300, @
