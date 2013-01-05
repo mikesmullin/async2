@@ -81,13 +81,13 @@
       this[func + '_callback'] = cb;
       return this;
     };
-  }) && (a.prototype.begin = a.prototype["try"] = a.prototype["new"] = _callback('begin')) && (a.prototype.beforeAll = a.prototype.before = _callback('beforeAll')) && (a.prototype.beforeEach = _callback('beforeEach')) && (a.prototype.afterEach = a.prototype.between = a.prototype.inbetween = _callback('afterEach')) && (a.prototype.error = a.prototype["catch"] = a.prototype.rescue = _callback('error')) && (a.prototype.success = a.prototype["else"] = _callback('success'));
+  }) && (a.prototype.begin = a.prototype["try"] = a.prototype["new"] = a.prototype.flow = _callback('begin')) && (a.prototype.beforeAll = a.prototype.before = _callback('beforeAll')) && (a.prototype.beforeEach = _callback('beforeEach')) && (a.prototype.afterEach = a.prototype.between = a.prototype.inbetween = _callback('afterEach')) && (a.prototype.error = a.prototype["catch"] = a.prototype.rescue = _callback('error')) && (a.prototype.success = a.prototype["else"] = _callback('success'));
   (_static = function(func) {
     return function() {
       var b;
       return (b = new a)[func].apply(b, arguments);
     };
-  }) && (a.serial = a.series = a.blocking = a.waterfall = _static('serial')) && (a.parallel = a.nonblocking = _static('parallel')) && (a["do"] = a.then = a.auto = _static('do')) && (a.end = a["finally"] = a.ensure = a.afterAll = a.after = a.complete = a.done = _static('end')) && (a.begin = a["try"] = a["new"] = _static('begin')) && (a.beforeAll = a.before = _static('beforeAll')) && (a.beforeEach = _static('beforeEach')) && (a.afterEach = a.between = a.inbetween = _static('afterEach')) && (a.error = a["catch"] = a.rescue = _static('error')) && (a.success = a["else"] = _static('success'));
+  }) && (a.serial = a.series = a.blocking = a.waterfall = _static('serial')) && (a.parallel = a.nonblocking = _static('parallel')) && (a["do"] = a.then = a.auto = _static('do')) && (a.end = a["finally"] = a.ensure = a.afterAll = a.after = a.complete = a.done = _static('end')) && (a.begin = a["try"] = a["new"] = a.flow = _static('begin')) && (a.beforeAll = a.before = _static('beforeAll')) && (a.beforeEach = _static('beforeEach')) && (a.afterEach = a.between = a.inbetween = _static('afterEach')) && (a.error = a["catch"] = a.rescue = _static('error')) && (a.success = a["else"] = _static('success'));
   a.whilst = function(test, iterator, cb) {
     var _this = this;
     (test() && iterator(function(err) {

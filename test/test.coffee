@@ -123,6 +123,23 @@ describe 'async2', ->
         assert.closeTo 5*50, since(start), 25
         done()
 
+  it 'takes callback as the only argument in the first serial', (done) ->
+    async.flow()
+      .serial((next) ->
+        assert.typeOf next, 'function'
+        done()
+      )
+      .finally()
+
+  it 'takes callback as the last argument of a variable length of arguments based upon the previous serial of a subsequent serial'
+  it 'takes err, result as only arguments to finally in a series'
+  # it 'can do nextTick(f)' # why? node does it fine
+  it 'can do immediate serial execution push(f)'
+  it 'can do grouped immediate serial execution push("name", f)'
+
+
+
+  # TODO: uncomment this; it should work
   #### an overcomplicated display of flexibility
   #```coffeescript
   #a = async.new()
