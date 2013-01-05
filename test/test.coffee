@@ -159,16 +159,16 @@ describe 'async2', ->
       )
       .finally()
 
-  it 'passes cb as last argument to subsequent serial fns', (done) ->
+  it 'passes err, results... arguments to finally() in a series', (done) ->
     async.flow()
       .serial((next) ->
-        assert.typeOf next, 'function'
-        done()
+        next 'bad', 1, 2, 3, 4, 5, 6
       )
-      .finally()
+      .finally (err, results...) ->
+        assert.equal err, 'bad'
+        assert.deepEqual results, [ 1, 2, 3, 4, 5, 6 ]
+        done()
 
-
-  it 'takes err, result as only arguments to finally in a series'
   # it 'can do nextTick(f)' # why? node does it fine
   it 'can do immediate serial execution push(f)'
   it 'can do grouped immediate serial execution push("name", f)'
