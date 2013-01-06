@@ -1,6 +1,6 @@
 # Async2.js
 
-Better asynchronous javascript flow control in [98 lines](https://github.com/mikesmullin/async2/blob/stable/js/async2.js) or [2.59KB minified (990 bytes gzipped)](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js).
+Better asynchronous javascript flow control in [130 lines (5.8KB)](https://github.com/mikesmullin/async2/blob/stable/js/async2.js) or [4KB minified](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js) or [1298 bytes gzipped](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js.gz).
 
 Inspired by [async](https://github.com/caolan/async),
 [mini-async](https://github.com/mikesmullin/mini-async),
