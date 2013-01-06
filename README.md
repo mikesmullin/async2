@@ -169,11 +169,28 @@ async
     done()
 ```
 
-These are just a few things it can do.
+These are just a few of all the things it can do.
 
 For the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/async2/blob/stable/test/test.coffee).
 
 Or try it immediately in your browser with [codepen](http://codepen.io/mikesmullin/pen/tscfD).
+
+## FAQ
+
+ * **great another high horsed coffeescripter!**
+   i just prefer to author in coffee. the .js and .js.min versions are in here too. 
+   in fact it is backward-compatible with async.js; can do all the same things you'd want,
+   but in less lines of .js
+   less bytes i should say; its a minimalist implementation
+   with some improvements.
+
+ * **have you tried pull requests to the async repo?**
+   i may if i get positive response
+   but its 100% refactor from ground-up; its not just a pull request.
+   also any snide remarks are meant to encourage spirited but constructive debate.
+   i'm not trying to be divisive. just had a need with a short timeline :)
+   i know a lot of people get used to the way things are...
+
 
 TODO
 ----
