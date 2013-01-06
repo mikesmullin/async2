@@ -24,6 +24,7 @@ libraries.
 * [end / finally / ensure / afterAll / after / complete / done / go](#find-examples-in-the-tests) : blocking function called after all tasks have completed
 * [whilst](#find-examples-in-the-tests) : provide test, iterator, and callback functions. will iterate until test passes, then execute callback
 * [delay](#find-examples-in-the-tests) : inverts argument order to `setTimeout()` for easier CoffeeScript markup
+* [push / nextTickGroup](#find-examples-in-the-tests) : serially-queued automatic-kick-start execution like `nextTick()` or `setTimeout(f,0)`, but grouped
 
 ## Quick Examples
 

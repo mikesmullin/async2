@@ -275,7 +275,7 @@ describe 'async2', ->
         assert.typeOf result, 'undefined'
         done()
 
-  it 'can do group-queued automatic serial execution with nextTickGroup("group_name", f)', (done) ->
+  it 'can do serially-queued automatic-kick-start execution like `nextTick()` or `setTimeout(f,0)`, but grouped', (done) ->
     # similar to nextTick() or setTimeout(->, 0), but grouped
     out = ''
     debug = (m,s,cb) ->
