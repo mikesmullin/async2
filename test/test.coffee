@@ -206,6 +206,11 @@ describe 'async2', ->
       #console.log 'try this in async.js!'
       done()
 
+  it 'is sometimes useful to call go() with no fns queued', (done) ->
+    flow = new async
+    flow.go ->
+      done()
+
   it 'can waterfall serial results to parallel functions in the same flow', (done) ->
     tweet = fbook = gplus = (data, cb) -> # mock async broadcast fns
       assert.equal 'asynchronous data', data

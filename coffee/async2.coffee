@@ -54,7 +54,6 @@ not ((context, definition) ->
 
   # public instance methods
   A::end = A::finally = A::ensure = A::afterAll = A::after = A::complete = A::done = A::go = (cb) ->
-    return unless @beginning_length # must have fns in queue
     return if @processing # must not already be going
     @processing = true
     @a.push =>

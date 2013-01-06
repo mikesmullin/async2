@@ -63,9 +63,6 @@
   };
   A.prototype.end = A.prototype["finally"] = A.prototype.ensure = A.prototype.afterAll = A.prototype.after = A.prototype.complete = A.prototype.done = A.prototype.go = function(cb) {
     var _this = this;
-    if (!this.beginning_length) {
-      return;
-    }
     if (this.processing) {
       return;
     }
