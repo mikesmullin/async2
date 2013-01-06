@@ -169,6 +169,21 @@ async
     done()
 ```
 
+Additionally, `nextTick()` users will appreciate the lazy man's grouped blocking serial execution:
+
+```coffeescript
+async.push 'A', (next) ->
+  setTimeout (-> console.log 'second'; next()), 100
+async.push 'B', (next) ->
+  setTimeout (-> console.log 'first'; next()), 10
+async.push 'A', (next) ->
+  setTimeout (-> console.log 'third'; next()), 1
+# outputs:
+# first
+# second
+# third
+```
+
 These are just a few of all the things it can do.
 
 For the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/async2/blob/stable/test/test.coffee).
