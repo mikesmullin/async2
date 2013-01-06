@@ -18,7 +18,6 @@ not ((context, definition) ->
     this.beginning_result = beginning_result
     this.beginning_length = 0;
     this.processed = 0;
-    this.q = {};
     this.processing = false;
   };`
 
@@ -88,11 +87,6 @@ not ((context, definition) ->
     @beginning_result = b
     @
 
-  A::nextTickGroup = A::push = (g, f) ->
-    @q[g] = @q[g] or new A
-    @q[g].serial(f).go()
-    @
-
   # public instance methods for callback functions
   (_callback = (func) -> (cb) ->
     @[func + '_callback'] = cb
@@ -117,10 +111,15 @@ not ((context, definition) ->
     (A.beforeEach = _static 'beforeEach') and
     (A.afterEach = A.between = A.inbetween = _static 'afterEach') and
     (A.error = A.catch = A.rescue = _static 'error') and
-    (A.success = A.else = _static 'success') and
-    (A.nextTickGroup = A.push = _static 'push')
+    (A.success = A.else = _static 'success')
 
   # public static-only functions
+  A.q = {}
+  A.nextTickGroup = A.push = (g, f) ->
+    A.q[g] = A.q[g] or new A
+    A.q[g].serial(f).go()
+    A
+
   A.whilst = (test, iterator, cb) ->
     (test() and
       iterator (err) =>

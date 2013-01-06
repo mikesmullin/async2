@@ -299,7 +299,7 @@ describe 'async2', ->
     X.serial ->
       debug 'd', 30, @
     X.go()
-    async.delay 100+50+300+30+25, ->
+    async.delay l=100+50+300+30+25, ->
       assert.equal 'bdac', out
       out = ''
 
@@ -310,12 +310,14 @@ describe 'async2', ->
       # and its ok to call go() more than once; duplicate calls
       # will be ignored unless there are actually some functions enqueued
       # and it is not already processing.
+      async.nextTickGroup 'Z', ->
+        debug 'a', 100, @
+      async.push 'X', -> # push is an alias; its the same fn
+        debug 'b', 50, @
       async
-        .nextTickGroup 'Z', ->
-          debug 'a', 100, @
-        .push 'X', -> # push is an alias; its the same fn
-          debug 'b', 50, @
         .push 'Z', ->
+          # should not begin until after Za has completed; its a series
+          assert.closeTo l+100, since(start), 25
           debug 'c', 300, @
         .nextTickGroup 'X', ->
           debug 'd', 30, @
