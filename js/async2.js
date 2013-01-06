@@ -16,14 +16,18 @@
       return a;
     }
     this.a = [];
-    this.beginning_result = beginning_result
-    this.beginning_length = 0;
-    this.processed = 0;
-    this.processing = false;
+    this._reset();
+    this.beginning_result = beginning_result;
   };;
+  A.prototype._reset = function() {
+    this.beginning_result = undefined;
+    this.beginning_length = 0;
+    this.processing = false;
+    return this.processed = 0;
+  };
   A.prototype._apply = function(args) {
     if (this.a.length) {
-      return (args[0] ? this.a.splice(0, this.a.length).shift() : this.a[this.a.length - 1]).apply({}, args);
+      return (args[0] ? this.a.splice(0, this.a.length)[0] : this.a[this.a.length - 1]).apply({}, args);
     }
   };
   A.prototype._next = function(parallel) {
@@ -67,15 +71,16 @@
     }
     this.processing = true;
     this.a.push(function() {
+      _this.a.pop();
       if (arguments[0]) {
         _this.error_callback.apply(_this._next(!_this.error_callback.length), arguments);
       } else {
         _this.success_callback.apply(_this._next(!_this.success_callback.length), arguments);
       }
-      _this.processing = false;
       if (typeof cb === 'function') {
-        return cb.apply(null, arguments);
+        cb.apply(null, arguments);
       }
+      return _this._reset();
     });
     this.a.reverse();
     (this.begin_callback = this.begin_callback || function() {}) && (this.beforeAll_callback = this.beforeAll_callback || function() {}) && (this.beforeEach_callback = this.beforeEach_callback || function() {}) && (this.afterEach_callback = this.afterEach_callback || function() {}) && (this.error_callback = this.error_callback || function() {}) && (this.success_callback = this.success_callback || function() {});

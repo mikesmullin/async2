@@ -15,16 +15,20 @@ not ((context, definition) ->
       return a;
     }
     this.a = [];
-    this.beginning_result = beginning_result
-    this.beginning_length = 0;
-    this.processed = 0;
-    this.processing = false;
+    this._reset();
+    this.beginning_result = beginning_result;
   };`
 
   # private instance methods
+  A::_reset = ->
+    @beginning_result = `undefined`
+    @beginning_length = 0
+    @processing = false
+    @processed = 0
+
   A::_apply = (args) ->
     if @a.length
-      (if args[0] then @a.splice(0, @a.length).shift() else @a[@a.length-1]).apply {}, args
+      (if args[0] then @a.splice(0, @a.length)[0] else @a[@a.length-1]).apply {}, args
 
   A::_next = (parallel) ->
     =>
@@ -56,12 +60,13 @@ not ((context, definition) ->
     return if @processing # must not already be going
     @processing = true
     @a.push =>
+      @a.pop()
       if arguments[0]
         @error_callback.apply @_next(!@error_callback.length), arguments
       else
         @success_callback.apply @_next(!@success_callback.length), arguments
-      @processing = false
       cb.apply null, arguments if typeof cb is 'function'
+      @_reset()
     @a.reverse() # 6-10x faster to push/pop than shift
     # initialize callbacks
     (@begin_callback = @begin_callback or ->) and

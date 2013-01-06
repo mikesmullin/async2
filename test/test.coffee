@@ -282,11 +282,7 @@ describe 'async2', ->
 
   it 'can do serially-queued automatic-kick-start execution like `nextTick()` or `setTimeout(f,0)`, but grouped', (done) ->
     out = ''
-    debug = (m,s,cb) ->
-      async.delay s, ->
-        out += m
-        cb null
-
+    debug = (m,s,cb) -> async.delay s, -> out += m; cb null
     Z = new async
     Z.serial ->
       debug 'a', 100, @
@@ -325,3 +321,14 @@ describe 'async2', ->
       async.delay 100+50+300+30+25, ->
         assert.equal 'bdac', out
         done()
+
+  it 'can still keep pushing after queue has emptied', (done) ->
+    out = ''
+    debug = (m,s,cb) -> async.delay s, -> out += m; cb null
+
+    async.push 'Z', ->
+      debug 'e', 10, @
+
+    async.delay 10+25, ->
+      assert.equal out, 'e'
+      done()
