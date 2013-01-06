@@ -6,9 +6,6 @@ class global.Debugger
       s.unshift "[#{(current - @started) / 1000}s]"
       console.log s
 
-global.delay = (s,f) ->
-  setTimeout f, s
-
 global.rdelay = (f) ->
   setTimeout f, Math.random() * 100 * Math.random() * 10
 

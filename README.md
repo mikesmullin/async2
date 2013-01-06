@@ -1,6 +1,6 @@
 # Async2.js
 
-Better asynchronous javascript flow control in [98 lines](https://github.com/mikesmullin/async2/blob/stable/js/async2.js) or [2.59KB minified (990 bytes gzipped)](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js).
+Better asynchronous javascript flow control in [130 lines (5.8KB)](https://github.com/mikesmullin/async2/blob/stable/js/async2.js) or [4KB minified](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js) or [1298 bytes gzipped](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js.gz).
 
 Inspired by [async](https://github.com/caolan/async),
 [mini-async](https://github.com/mikesmullin/mini-async),
@@ -12,39 +12,164 @@ libraries.
 
 ### Flow Control
 
-* [begin / try / new](#find-examples-in-the-tests) : chainable instantiation; not required but sometimes useful
+* [new / flow / with](#find-examples-in-the-tests) : optional chainable instantiator; receives beginning result; useful in series
 * [beforeAll / before](#find-examples-in-the-tests) : non-blocking function called once before first task
 * [beforeEach](#find-examples-in-the-tests) : non-blocking function called once before each task
-* [serial / series / blocking / waterfall](#find-examples-in-the-tests) : blocking function called in order; results optionally waterfalled.
+* [serial / series / blocking / waterfall](#find-examples-in-the-tests) : blocking function called in order; results optionally waterfalled
 * [parallel / nonblocking](#find-examples-in-the-tests) : non-blocking function called in order
-* [do / then / auto](#find-examples-in-the-tests) : optionally blocking function called in order; determined by length of arguments callback expects
+* [do / then / try / begin / start / auto](#find-examples-in-the-tests) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#find-examples-in-the-tests) : non-blocking function called once after each task
 * [error / catch / rescue](#find-examples-in-the-tests) : blocking function called when error occurs
 * [success / else](#find-examples-in-the-tests) : non-blocking function called after all tasks have completed, but only if no errors occur
-* [end / finally / ensure / afterAll / after / complete / done](#find-examples-in-the-tests) : blocking function called after all tasks have completed
+* [end / finally / ensure / afterAll / after / complete / done / go](#find-examples-in-the-tests) : blocking function called after all tasks have completed
 * [whilst](#find-examples-in-the-tests) : provide test, iterator, and callback functions. will iterate until test passes, then execute callback
+* [delay](#find-examples-in-the-tests) : inverts argument order to `setTimeout()` for easier CoffeeScript markup
+* [push / nextTickGroup](#find-examples-in-the-tests) : serially-queued automatic-kick-start execution like `nextTick()` or `setTimeout(f,0)`, but grouped
 
 ## Quick Examples
 
 ### First, reflect upon our haiku mantra:
 
-> "thoughtful single-chain
-
-> order of operations
-
-> escape callback hell!"
+    5  thoughtful single-chain
+    7  order of operations
+    5  escape callback hell!
 
 <a name="find-examples-in-the-tests" />
 
 ### Then, observe in action:
 
+Backward-compatible with async.js:
+
 ```coffeescript
-async('pretend/path/to/file') # accepts initial input passed via waterfall to serial
-  .serial(fs.readFile) # block until data is read
-  .parallel [ tweet, fbook, gplus ], # push data to 3 services simultaneously
-    (err, data) -> # execute once all above is complete
-      #done()
+async.series [
+ -> async.delay 100, @
+ -> async.delay 50, @
+], ->
+  assert.closeTo 100+50, since(start), 25
+
+  async.parallel [
+   -> async.delay 100, @
+   -> async.delay 50, @
+  ], ->
+    assert.closeTo (100+50)+100, since(start), 25
+    done()
 ```
+
+But better thanks to several improvements:
+
+```coffeescript
+async
+  .serial((next) ->
+    assert.typeOf next, 'function'
+    next null, 'async data' # e.g., fs.readFile(), or jQuery.ajax()
+  )
+  .parallel((data, next) ->
+    assert.equal data, 'async data'
+    assert.typeOf next, 'function'
+    next null
+  )
+  .parallel((data, next) ->
+    assert.equal data, 'async data'
+    assert.typeOf next, 'function'
+    next null
+  )
+  .serial(->
+    assert.typeOf @, 'function' # `this` === `next`
+    @ null, 1, 2, 3, 4, 5, 6
+  )
+  .end (err, results...) ->
+    assert.equal err, null
+    assert.deepEqual results, [ 1, 2, 3, 4, 5, 6 ]
+    done()
+```
+
+In fact, way better:
+
+```coffeescript
+flow = new async
+for i in [1..10]
+  ((i) ->
+    method = if i%3 then 'parallel' else 'serial' # an overcomplicated display of flexibility
+    flow[method] (next) ->
+      async.delay 25, ->
+        console.log "#{method} #{i}"
+        next()
+  )(i)
+flow.go (err, results...) ->
+  console.log 'try this in async.js!'
+  done()
+```
+
+It really makes you wonder: how long have we needed a good asynchronous flow control library, and not known it?
+
+Exhibit A: Look familiar to any jQuery.ajax() developers?
+
+```coffeescript
+called = false
+async
+  before: ->
+    #loading.show()
+    called = true
+  do: (next) ->
+    # main logic
+    assert.ok called
+    next 'err', 'result'
+  error: (err) ->
+    assert.equal 'err', 'err'
+    #alert err
+  success: (result) ->
+    assert false, 'success() should not have been called here'
+    #console.log data
+  complete: (err, result) ->
+    assert.equal err, 'err'
+    assert.equal result, 'result'
+    #loading.hide()
+    done()
+```
+
+Exhibit B: How about to you JavaScript developers?
+
+```coffeescript
+called = false
+async
+  .try(->
+    @ new Error 'thrown node cb style'
+  )
+  .catch((err) ->
+    called = true
+    assert.equal ''+err, 'Error: thrown node cb style'
+  )
+  .finally (err, result) ->
+    assert.ok called
+    assert.equal ''+err, 'Error: thrown node cb style'
+    assert.typeOf result, 'undefined'
+    done()
+```
+
+Exhibit C: Any Rubists in the audience?
+
+```coffeescript
+called = false
+async
+  .begin(->
+    @ new Error 'thrown node cb style'
+  )
+  .rescue((err) ->
+    called = true
+    assert.equal ''+err, 'Error: thrown node cb style'
+  )
+  .else((result) ->
+    console.log 'Else'
+    assert false, 'else() should not have been called here'
+  )
+  .ensure (err, result) ->
+    assert.ok called
+    assert.equal ''+err, 'Error: thrown node cb style'
+    assert.typeOf result, 'undefined'
+    done()
+```
+
+These are just a few things it can do.
 
 For the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/async2/blob/stable/test/test.coffee).
 
@@ -52,6 +177,8 @@ Or try it immediately in your browser with [codepen](http://codepen.io/mikesmull
 
 TODO
 ----
+
+* i could name variables better to assist with minification but its already pretty small. i may do it later though.
 
 * potential node.js madness: each series becomes its own cpu thread, each parallel becomes its own gpu thread.
 
