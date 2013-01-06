@@ -276,7 +276,6 @@ describe 'async2', ->
         done()
 
   it 'can do serially-queued automatic-kick-start execution like `nextTick()` or `setTimeout(f,0)`, but grouped', (done) ->
-    # similar to nextTick() or setTimeout(->, 0), but grouped
     out = ''
     debug = (m,s,cb) ->
       async.delay s, ->
