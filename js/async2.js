@@ -7,7 +7,7 @@
   return context['async'] = definition;
 })(this, (function() {
   var A, _callback, _static;
-  A = function async(beginning_result) {
+  A = function async() {
     if (typeof this.serial === 'undefined') {
       var a = new A(), k;
       for (k in arguments[0]) {
@@ -17,10 +17,10 @@
     }
     this.a = [];
     this._reset();
-    this.beginning_result = beginning_result;
+    this.beginning_results = [].slice.call(arguments, 0);
   };;
   A.prototype._reset = function() {
-    this.beginning_result = undefined;
+    this.beginning_results = [];
     this.beginning_length = 0;
     this.processing = false;
     return this.processed = 0;
@@ -85,7 +85,7 @@
     this.a.reverse();
     (this.begin_callback = this.begin_callback || function() {}) && (this.beforeAll_callback = this.beforeAll_callback || function() {}) && (this.beforeEach_callback = this.beforeEach_callback || function() {}) && (this.afterEach_callback = this.afterEach_callback || function() {}) && (this.error_callback = this.error_callback || function() {}) && (this.success_callback = this.success_callback || function() {});
     this.beforeAll_callback.apply(this._next(!this.beforeAll_callback.length), arguments);
-    this._apply((typeof this.beginning_result)[0] === 'u' ? [null] : [null, this.beginning_result]);
+    this._apply([null].concat(this.beginning_results));
     return this;
   };
   A.prototype.serial = A.prototype.series = A.prototype.blocking = A.prototype.waterfall = function() {
@@ -97,8 +97,8 @@
   A.prototype["do"] = A.prototype.then = A.prototype["try"] = A.prototype.begin = A.prototype.start = A.prototype.auto = function() {
     return this._push(arguments, null);
   };
-  A.prototype["new"] = A.prototype.flow = A.prototype["with"] = function(b) {
-    this.beginning_result = b;
+  A.prototype["new"] = A.prototype.flow = A.prototype["with"] = function() {
+    this.beginning_results = [].slice.call(arguments, 0);
     return this;
   };
   (_callback = function(func) {

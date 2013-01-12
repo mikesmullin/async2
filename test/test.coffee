@@ -192,6 +192,21 @@ describe 'async2', ->
         assert.deepEqual result, score: 11
         done()
 
+  it 'may receive multiple beginning results', (done) ->
+    req = params: id: 5
+    res = current_user: id: 6
+    flow = async.flow req, res
+    flow.serial (req, res, next) ->
+      assert.equal arguments.length, 3
+      assert.typeOf req, 'object'
+      assert.typeOf res, 'object'
+      assert.typeOf next, 'function'
+      res.current_user.id = 7
+      next null, req, res
+    flow.go (err, req, res) ->
+      assert.equal res.current_user.id, 7
+      done()
+
   it 'is MUCH easier to use within loops', (done) ->
     flow = new async
     for i in [1..10]

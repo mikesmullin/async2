@@ -6,7 +6,7 @@ not ((context, definition) ->
 )(this, (->
   # constructor
   # the if statement is for jQuery-like instantiation
-  A = `function async(beginning_result) {
+  A = `function async() {
     if (typeof this.serial === 'undefined') {
       var a = new A(), k;
       for (k in arguments[0]) {
@@ -16,12 +16,12 @@ not ((context, definition) ->
     }
     this.a = [];
     this._reset();
-    this.beginning_result = beginning_result;
+    this.beginning_results = [].slice.call(arguments, 0);
   };`
 
   # private instance methods
   A::_reset = ->
-    @beginning_result = `undefined`
+    @beginning_results = []
     @beginning_length = 0
     @processing = false
     @processed = 0
@@ -76,7 +76,7 @@ not ((context, definition) ->
       (@error_callback = @error_callback or ->) and
       (@success_callback = @success_callback or ->)
     @beforeAll_callback.apply @_next(!@beforeAll_callback.length), arguments
-    @_apply if (typeof @beginning_result)[0] is 'u' then [ null ] else [ null, @beginning_result ]
+    @_apply [ null ].concat @beginning_results
     return @
 
   A::serial = A::series = A::blocking = A::waterfall = ->
@@ -88,8 +88,8 @@ not ((context, definition) ->
   A::do = A::then = A::try = A::begin = A::start = A::auto = ->
     @_push arguments, null
 
-  A::new = A::flow = A::with = (b) ->
-    @beginning_result = b
+  A::new = A::flow = A::with = ->
+    @beginning_results = [].slice.call arguments, 0
     @
 
   # public instance methods for callback functions
