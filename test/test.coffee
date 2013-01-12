@@ -89,15 +89,15 @@ describe 'async2', ->
 
   it 'follows node (results..., cb) and (err, results..., cb) conventions', (done) ->
     fs =
-      readFile: (path, done) ->
-        async.delay 20, -> done null, "tons o' data from #{path}."
+      readFile: (path, next) ->
+        async.delay 20, -> next null, "tons o' data from #{path}."
     tweet = fbook = gplus = (data, done) -> done null, data
     results = {}
     (new async())
-      .serial((next) ->
+      .waterfall((next) ->
         next null, 'pretend/path/to/file'
       )
-      .serial(fs.readFile)
+      .waterfall(fs.readFile)
       .parallel [ tweet, fbook, gplus ],
         (err, data) ->
           assert.equal "tons o' data from pretend/path/to/file.", data
@@ -146,16 +146,16 @@ describe 'async2', ->
         assert.typeOf next, 'function'
         next()
       )
-      .serial((next) ->
+      .waterfall((next) ->
         assert.typeOf next, 'function'
         next null, 1
       )
-      .serial((a, next) ->
+      .waterfall((a, next) ->
         assert.equal a, 1
         assert.typeOf next, 'function'
         next null, 1, 2
       )
-      .serial((a, b, next) ->
+      .waterfall((a, b, next) ->
         assert.equal a, 1
         assert.equal b, 2
         assert.typeOf next, 'function'
@@ -170,7 +170,7 @@ describe 'async2', ->
 
   it 'passes err, results... arguments to finally() in a series', (done) ->
     async.flow()
-      .serial((next) ->
+      .waterfall((next) ->
         next 'bad', 1, 2, 3, 4, 5, 6
       )
       .finally (err, results...) ->
@@ -346,4 +346,35 @@ describe 'async2', ->
 
     async.delay 10+25, ->
       assert.equal out, 'e'
+      done()
+
+  it 'implicitly forwards the results serial receives, considering only next(err)', (done) ->
+    req = params: id: 5
+    res = current_user: id: 6
+    flow = async.flow req, res
+    flow.series (req, res, next) ->
+      assert.equal arguments.length, 3
+      assert.typeOf req, 'object'
+      assert.equal req.params.id, 5
+      assert.typeOf res, 'object'
+      assert.equal res.current_user.id, 6
+      assert.typeOf next, 'function'
+      res.current_user.id = 7
+      next null
+    flow.series (req, res, next) ->
+      assert.equal arguments.length, 3
+      assert.typeOf req, 'object'
+      assert.equal req.params.id, 5
+      assert.typeOf res, 'object'
+      assert.equal res.current_user.id, 7
+      assert.typeOf next, 'function'
+      req.params.id = 8
+      next 'some err'
+    flow.go (err, req, res) ->
+      assert.equal arguments.length, 3
+      assert.equal 'some err', err
+      assert.typeOf req, 'object'
+      assert.equal req.params.id, 8
+      assert.typeOf res, 'object'
+      assert.equal res.current_user.id, 7
       done()
