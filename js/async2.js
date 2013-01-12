@@ -88,22 +88,8 @@
     this._apply([null].concat(this.beginning_results));
     return this;
   };
-  A.prototype.waterfall = function() {
+  A.prototype.serial = A.prototype.series = A.prototype.blocking = A.prototype.waterfall = function() {
     return this._push(arguments, false);
-  };
-  A.prototype.serial = A.prototype.series = A.prototype.blocking = function() {
-    var cb;
-    cb = arguments[arguments.length - 1];
-    arguments[arguments.length - 1] = function() {
-      var next, results;
-      results = [].slice.call(arguments, 0, -1);
-      next = arguments[arguments.length - 1];
-      arguments[arguments.length - 1] = function(err) {
-        return next.apply(null, [err].concat(results));
-      };
-      return cb.apply(this, arguments);
-    };
-    return this.waterfall.apply(this, arguments);
   };
   A.prototype.parallel = A.prototype.nonblocking = function() {
     return this._push(arguments, true);
@@ -126,7 +112,7 @@
       var b;
       return (b = new A)[func].apply(b, arguments);
     };
-  }) && (A.serial = A.series = A.blocking = _static('serial')) && (A.waterfall = _static('waterfall')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A["try"] = A.begin = A.start = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A["new"] = A.flow = A["with"] = _static('new')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
+  }) && (A.serial = A.series = A.blocking = A.waterfall = _static('serial')) && (A.parallel = A.nonblocking = _static('parallel')) && (A["do"] = A.then = A["try"] = A.begin = A.start = A.auto = _static('do')) && (A.end = A["finally"] = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static('end')) && (A["new"] = A.flow = A["with"] = _static('new')) && (A.beforeAll = A.before = _static('beforeAll')) && (A.beforeEach = _static('beforeEach')) && (A.afterEach = A.between = A.inbetween = _static('afterEach')) && (A.error = A["catch"] = A.rescue = _static('error')) && (A.success = A["else"] = _static('success'));
   A.q = {};
   A.nextTickGroup = A.push = function(g, f) {
     A.q[g] = A.q[g] || new A;

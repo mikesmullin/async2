@@ -1,6 +1,6 @@
 # Async2.js
 
-Better asynchronous javascript flow control in [146 lines (6.2KB)](https://github.com/mikesmullin/async2/blob/stable/js/async2.js) or [4.4KB minified](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js) or [1357 bytes gzipped](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js.gz).
+Better asynchronous javascript flow control in [132 lines (5.7KB)](https://github.com/mikesmullin/async2/blob/stable/js/async2.js) or [4KB minified](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js) or [1285 bytes gzipped](https://raw.github.com/mikesmullin/async2/stable/js/async2.min.js.gz).
 
 Inspired by [async](https://github.com/caolan/async),
 [mini-async](https://github.com/mikesmullin/mini-async),
@@ -15,8 +15,7 @@ libraries.
 * [new / flow / with](#find-examples-in-the-tests) : optional chainable instantiator; receives beginning result; useful in series
 * [beforeAll / before](#find-examples-in-the-tests) : non-blocking function called once before first task
 * [beforeEach](#find-examples-in-the-tests) : non-blocking function called once before each task
-* [serial / series / blocking](#find-examples-in-the-tests) : blocking function called in order; results automatically passed as inherited
-* [waterfall](#find-examples-in-the-tests) : like series, but only results provided to next() are passed on
+* [serial / series / blocking / waterfall](#find-examples-in-the-tests) : blocking function called in order; results always waterfalled
 * [parallel / nonblocking](#find-examples-in-the-tests) : non-blocking function called in order
 * [do / then / try / begin / start / auto](#find-examples-in-the-tests) : optionally blocking function called in order; determined by length of arguments callback expects
 * [afterEach / between / inbetween](#find-examples-in-the-tests) : non-blocking function called once after each task
@@ -60,7 +59,7 @@ But better thanks to several improvements:
 
 ```coffeescript
 async
-  .waterfall((next) ->
+  .serial((next) ->
     assert.typeOf next, 'function'
     next null, 'async data' # e.g., fs.readFile(), or jQuery.ajax()
   )
@@ -74,7 +73,7 @@ async
     assert.typeOf next, 'function'
     next null
   )
-  .waterfall(->
+  .serial(->
     assert.typeOf @, 'function' # `this` === `next`
     @ null, 1, 2, 3, 4, 5, 6
   )
@@ -96,7 +95,7 @@ for i in [1..10]
         console.log "#{method} #{i}"
         next()
   )(i)
-flow.go (err) ->
+flow.go (err, results...) ->
   console.log 'try this in async.js!'
   done()
 ```
@@ -194,8 +193,8 @@ Or try it immediately in your browser with [codepen](http://codepen.io/mikesmull
 ## FAQ
 
  * **great another high horsed coffeescripter!**
-   i just prefer to author in coffee. the .js and .js.min versions are in here too. 
-   it can do all the same things you'd want. in fact it is partially backward-compatible with async.js syntax.
+   i just prefer to author in coffee. the .js and .js.min versions are in here too.
+   you can do all the same things; in fact it is partially backward-compatible with async.js
    but in less lines of .js
    less bytes i should say; its a minimalist implementation
    with some improvements.

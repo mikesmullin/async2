@@ -79,18 +79,8 @@ not ((context, definition) ->
     @_apply [ null ].concat @beginning_results
     return @
 
-  A::waterfall = ->
+  A::serial = A::series = A::blocking = A::waterfall = ->
     @_push arguments, false
-
-  A::serial = A::series = A::blocking = ->
-    cb = arguments[arguments.length-1]
-    arguments[arguments.length-1] = ->
-      results = [].slice.call arguments, 0, -1
-      next = arguments[arguments.length-1]
-      arguments[arguments.length-1] = (err) ->
-        next.apply null, [err].concat results
-      cb.apply @, arguments
-    @waterfall.apply @, arguments
 
   A::parallel = A::nonblocking = ->
     @_push arguments, true
@@ -117,8 +107,7 @@ not ((context, definition) ->
   # and forward arguments to their corresponding public instance method above
   (_static = (func) -> ->
     (b = new A)[func].apply b, arguments) and
-    (A.serial = A.series = A.blocking = _static 'serial') and
-    (A.waterfall = _static 'waterfall') and
+    (A.serial = A.series = A.blocking = A.waterfall = _static 'serial') and
     (A.parallel = A.nonblocking = _static 'parallel') and
     (A.do = A.then = A.try = A.begin = A.start = A.auto = _static 'do') and
     (A.end = A.finally = A.ensure = A.afterAll = A.after = A.complete = A.done = A.go = _static 'end') and
