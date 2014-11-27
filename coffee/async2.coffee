@@ -1,6 +1,6 @@
 not ((context, definition) ->
   if 'function' is typeof define # RequireJS
-    return define definition
+    return define -> definition
   else if 'function' is typeof require and # Node.JS/CommonJS
      typeof exports is typeof module
     return module.exports = definition
