@@ -1,8 +1,10 @@
 not ((context, definition) ->
-  if 'function' is typeof require and
+  if 'function' is typeof define # RequireJS
+    return define definition
+  else if 'function' is typeof require and # Node.JS/CommonJS
      typeof exports is typeof module
     return module.exports = definition
-  return context['async'] = definition
+  return context['async'] = definition # Browser
 )(this, (->
   # constructor
   # the if statement is for jQuery-like instantiation
