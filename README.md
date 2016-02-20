@@ -206,15 +206,3 @@ Or try it immediately in your browser with [codepen](http://codepen.io/mikesmull
    i'm not trying to be divisive. just had a need with a short timeline :)
    i know a lot of people get used to the way things are...
 
-
-TODO
-----
-
-* i could name variables better to assist with minification but its already pretty small. i may do it later though.
-
-* potential node.js madness: each series becomes its own cpu thread, each parallel becomes its own gpu thread.
-
-> "GPUs have evolved to the point where many real-world applications are easily implemented on them and run significantly faster than on multi-core systems. Future computing architectures will be hybrid systems with parallel-core GPUs working in tandem with multi-core CPUs.'
--- [Professor Jack Dongarra](http://www.nvidia.com/object/what-is-gpu-computing.html),
-Director of the Innovative Computing Laboratory,
-The University of Tennessee
